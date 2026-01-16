@@ -1,0 +1,8 @@
+/target
+
+# IDEs and Code Editors
+/.idea
+/.vscode
+
+# We'll temporarely gitignore ascii art as it has not yet been implemented
+/ascii 
