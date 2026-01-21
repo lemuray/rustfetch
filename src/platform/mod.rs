@@ -1,9 +1,6 @@
 //! Platform specific information functions
 //! This module compiles platform-specific implementation at compile time based on the target OS 
 
-mod common;
-pub use common::*;
-
 #[cfg(target_os = "linux")]
 mod linux;
 #[cfg(target_os = "linux")]

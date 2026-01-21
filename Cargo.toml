@@ -6,3 +6,6 @@ edition = "2024"
 [[bin]]
 name = "rustfetch"
 path = "src/main.rs"
+
+[dependencies]
+colored = "3.1.1"

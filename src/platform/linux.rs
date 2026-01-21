@@ -1,14 +1,15 @@
 use std::path::Path;
-use super::common;
+use crate::common::{get_trimmed, get_value_from_file};
+
 
 /// Returns total and used RAM in GB alongside the percentage of usage
 pub fn get_memory_usage(total_input: &str, available_input: &str) -> (f64, f64, f64) {
     // TODO: Check if memory total and usage is equal or more than 1GB, if not display the value in MB
-    let total_string = common::get_value_from_file(Path::new("/proc/meminfo"), total_input, ":");
+    let total_string = get_value_from_file(Path::new("/proc/meminfo"), total_input, ":");
     let total_kb = (total_string.split_whitespace().next().unwrap()).parse::<f64>().unwrap();
     let total_gb = ((total_kb / (1024.0 * 1024.0)) * 100.0).floor() / 100.0;
 
-    let available_string = common::get_value_from_file(Path::new("/proc/meminfo"), available_input, ":");
+    let available_string = get_value_from_file(Path::new("/proc/meminfo"), available_input, ":");
     let available_kb = available_string.split_whitespace().next().unwrap();
     let available_gb = available_kb.parse::<f64>().unwrap() / (1024.0 * 1024.0);
 
@@ -23,7 +24,7 @@ pub fn get_memory_usage(total_input: &str, available_input: &str) -> (f64, f64, 
 
 /// Gets device uptime in HHh MMm SSs format
 pub fn get_uptime() -> String {
-    let content = common::get_trimmed(Path::new("/proc/uptime"));
+    let content = get_trimmed(Path::new("/proc/uptime"));
     if let Some((uptime_string, _)) = content.split_once(" ") {
         let uptime = (uptime_string.parse::<f64>().unwrap()).floor();
 
@@ -51,7 +52,7 @@ pub fn get_uptime() -> String {
 
 /// Gets battery status as a tuple (Capacity, Status) if available
 pub fn get_battery() -> (String, String){
-    let capacity = common::get_trimmed(Path::new("/sys/class/power_supply/BAT0/capacity"));
-    let status = common::get_trimmed(Path::new("/sys/class/power_supply/BAT0/status"));
+    let capacity = get_trimmed(Path::new("/sys/class/power_supply/BAT0/capacity"));
+    let status = get_trimmed(Path::new("/sys/class/power_supply/BAT0/status"));
     (capacity, status)
 }

@@ -5,7 +5,7 @@ use std::path::Path;
 
 /// Gets content from a single line file and trims it
 pub fn get_trimmed(path: &Path) -> String {
-    let content = fs::read_to_string(path).expect("Null");
+    let content = fs::read_to_string(path).unwrap_or(String::from("Null"));
     content.trim().to_string() // Remove any whitespace or \n using .trim()
 }
 
@@ -18,7 +18,7 @@ pub fn get_trimmed(path: &Path) -> String {
 /// ```
 /// returns: Arch Linux
 pub fn get_value_from_file(path: &Path, key: &str, separator: &str) -> String {
-    let content = fs::read_to_string(path).expect("Null");
+    let content = fs::read_to_string(path).unwrap_or(String::from("Null"));
     for line in content.lines() {
         if !(line.contains(key)) {
             continue;
