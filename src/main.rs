@@ -5,7 +5,7 @@ pub mod platform;
     TODO:
     Error Detection in case function returns "Null"
     Test with other distros
-    Finish translating to rust
+    Add JSON settings file to selectively activate or deactivate specific functions
 */
 
 
@@ -17,4 +17,6 @@ fn main() {
         common::display_memory_usage();
         common::display_uptime();
         common::display_battery();
+        common::display_disk_usage();
+        common::display_power_draw();
 }

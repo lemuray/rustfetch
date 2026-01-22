@@ -1,4 +1,5 @@
 use std::path::Path;
+use nix::sys::statvfs::*;
 use crate::common::{get_trimmed, get_value_from_file};
 
 
@@ -55,4 +56,23 @@ pub fn get_battery() -> (String, String){
     let capacity = get_trimmed(Path::new("/sys/class/power_supply/BAT0/capacity"));
     let status = get_trimmed(Path::new("/sys/class/power_supply/BAT0/status"));
     (capacity, status)
+}
+
+/// Gets disk (root) usage and returns in GB and percentage (floored)
+pub fn get_disk_usage() -> (u64, u64, f64){
+    let stats = statvfs("/").unwrap();
+    let block_size = stats.block_size();
+    let total = stats.blocks() * block_size;
+    let free = stats.blocks_available() * block_size;
+    let used = total - free;
+
+    let percentage = ((used as f64 / total as f64) * 100.0).floor();
+
+    (total / 1_000_000_000, used / 1_000_000_000, percentage)
+}
+
+/// Gets current power draw and returns it as Watts
+pub fn get_power_draw() -> i32 {
+    let power_draw_mw = get_trimmed(Path::new("/sys/class/power_supply/BAT0/power_now")).parse::<i32>().unwrap();
+    power_draw_mw / 1_000_000 // power_now contains the value in microwatts, we transform it in watts
 }

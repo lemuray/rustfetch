@@ -2,7 +2,7 @@ use colored::*;
 use std::path::Path;
 
 use crate::common::{get_trimmed, get_value_from_file};
-use crate::platform;
+use crate::platform::{self, get_power_draw};
 
 // TODO: Most get_trimmed or get_value_from_file functions statically refer to linux directories, create functions in platform
 //       for this
@@ -14,6 +14,16 @@ fn color_percentage(percentage: f64) -> ColoredString {
         (percentage.to_string() + "%").yellow()
     } else {
         (percentage.to_string() + "%").red()
+    }
+}
+
+fn color_percentage_inverse(percentage: f64) -> ColoredString{
+    if percentage < 30.0 {
+        (percentage.to_string() + "%").red()
+    } else if (30.0..70.0).contains(&percentage) {
+        (percentage.to_string() + "%").yellow()
+    } else {
+        (percentage.to_string() + "%").green()
     }
 }
 
@@ -69,6 +79,23 @@ pub fn display_uptime() {
 pub fn display_battery() {
     let (capacity, status) = platform::get_battery();
     if capacity != "Null" && status != "Null" {
-        println!("{} {}% ({})", "Battery:".bold(), capacity, status);
+        println!("{} {} ({})", "Battery:".bold(), color_percentage_inverse(capacity.parse::<f64>().unwrap()), status);
     }
+}
+
+pub fn display_disk_usage() {  
+    let (total, used, percentage) = platform::get_disk_usage();
+    println!("{} {}GB / {}GB ({})",
+        "Disk (/):".bold(),
+        used,
+        total,
+        color_percentage(percentage)
+    )
+}
+
+pub fn display_power_draw() {
+    println!("{} {}W",
+        "Power Draw:".bold(),
+        get_power_draw()
+    )
 }
