@@ -17,7 +17,7 @@ fn color_percentage(percentage: f64) -> ColoredString {
     }
 }
 
-fn color_percentage_inverse(percentage: f64) -> ColoredString{
+fn color_percentage_inverse(percentage: f64) -> ColoredString {
     if percentage < 30.0 {
         (percentage.to_string() + "%").red()
     } else if (30.0..70.0).contains(&percentage) {
@@ -52,8 +52,8 @@ pub fn display_cpu() {
     );
 }
 
-pub fn display_memory_usage() {
-    let (total, used, percentage) = platform::get_memory_usage("MemTotal", "MemAvailable");
+pub fn display_ram_usage() {
+    let (total, used, percentage) = platform::get_ram_usage();
     println!(
         "{} {}GB / {}GB ({} used)",
         "RAM:".bold(),
@@ -61,8 +61,10 @@ pub fn display_memory_usage() {
         total,
         color_percentage(percentage)
     );
+}
 
-    let (total, used, percentage) = platform::get_memory_usage("SwapTotal", "SwapFree");
+pub fn display_swap_usage(){
+    let (total, used, percentage) = platform::get_swap_usage();
     println!(
         "{} {}GB / {}GB ({} used)",
         "Swap:".bold(),
@@ -79,23 +81,28 @@ pub fn display_uptime() {
 pub fn display_battery() {
     let (capacity, status) = platform::get_battery();
     if capacity != "Null" && status != "Null" {
-        println!("{} {} ({})", "Battery:".bold(), color_percentage_inverse(capacity.parse::<f64>().unwrap()), status);
+        println!(
+            "{} {} ({})",
+            "Battery:".bold(),
+            color_percentage_inverse(capacity.parse::<f64>().unwrap()),
+            status
+        );
+    }
+}
+pub fn display_power_draw() {
+    let power_draw = get_power_draw();
+    if power_draw != 0 {
+        println!("{} {}W", "Power Draw:".bold(), power_draw)
     }
 }
 
-pub fn display_disk_usage() {  
+pub fn display_disk_usage() {
     let (total, used, percentage) = platform::get_disk_usage();
-    println!("{} {}GB / {}GB ({})",
+    println!(
+        "{} {}GB / {}GB ({})",
         "Disk (/):".bold(),
         used,
         total,
         color_percentage(percentage)
-    )
-}
-
-pub fn display_power_draw() {
-    println!("{} {}W",
-        "Power Draw:".bold(),
-        get_power_draw()
     )
 }
