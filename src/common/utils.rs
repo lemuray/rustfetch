@@ -39,3 +39,12 @@ pub fn get_percentage_from_part(part: f64, total: f64) -> u64 {
 pub fn round_to_two_decimal(input: f64) -> f64 {
     (input * 100.0).floor() / 100.0
 }
+
+/// Extracts the first whitespace-separated numeric value from a string.
+///
+/// For example, "1234567 kB" returns 1234567.0
+pub fn extract_numeric_value(input: &str) -> f64 {
+    return (input.split_whitespace().next().unwrap())
+        .parse::<f64>()
+        .unwrap();
+}

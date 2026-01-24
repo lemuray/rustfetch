@@ -53,9 +53,12 @@ pub fn get_uptime() -> String {
 /// Gets disk (root) usage and returns in GB and percentage (floored)
 pub fn get_directory_usage(directory: &str) -> (u64, u64, u64) {
     let stats = statvfs(directory).unwrap();
-    let block_size = stats.block_size();
-    let total = stats.blocks() * block_size;
-    let free = stats.blocks_available() * block_size;
+
+    // Cast these to u64 for closs platform compatibility
+    // FIXME: shows absurd numbers on MacOS for some reason
+    let block_size = stats.block_size() as u64;
+    let total = stats.blocks() as u64 * block_size;
+    let free = stats.blocks_available() as u64 * block_size;
     let used = total - free;
 
     let percentage = get_percentage_from_part(used as f64, total as f64);

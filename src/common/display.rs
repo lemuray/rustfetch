@@ -1,10 +1,8 @@
+use crate::common::extract_numeric_value;
 use crate::platform::{self, get_power_draw};
 use crate::sysinfo::*;
 use colored::*;
 use sysinfo::System;
-
-// TODO: Most get_trimmed or get_value_from_file functions statically refer to linux directories, create functions in platform
-//       for this
 
 fn color_percentage(percentage: u64) -> ColoredString {
     if percentage < 40 {
@@ -56,6 +54,9 @@ pub fn display_ram_usage(sys: &System) {
 
 pub fn display_swap_usage(sys: &System) {
     let (total, used, percentage) = get_swap_usage(sys);
+    if extract_numeric_value(&total) == 0.0 {
+        println!("{} Disabled", "Swap:".bold())
+    }
     println!(
         "{} {} / {} ({})",
         "Swap:".bold(),
