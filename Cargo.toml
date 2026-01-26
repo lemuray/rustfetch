@@ -14,3 +14,7 @@ nix = { version = "0.30.1", features = ["fs"] }
 serde = { version = "1.0.228", features = ["derive"] }
 sysinfo = "0.37.2"
 toml = "0.9.11"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "warn"

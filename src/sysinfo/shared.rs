@@ -3,6 +3,9 @@ use nix::sys::statvfs::*;
 
 use sysinfo::*;
 
+const BYTES_TO_GB: u64 = 1_000_000_000;
+const KIB_TO_MB: u64 = 1024;
+
 /// Creates a System variable once and refreshes all the needed features
 pub fn create_system() -> System {
     let mut sys = System::new();
@@ -13,8 +16,8 @@ pub fn create_system() -> System {
 
 /// Gets RAM usage values and returns them as a formatted String alongside the usage percentage as unsigned int
 pub fn get_ram_usage(sys: &System) -> (String, String, u64) {
-    let total_kib = (sys.total_memory() / 1024) as f64;
-    let used_kib = (sys.used_memory() / 1024) as f64;
+    let total_kib = (sys.total_memory() / KIB_TO_MB) as f64;
+    let used_kib = (sys.used_memory() / KIB_TO_MB) as f64;
     let percentage = get_percentage_from_part(used_kib, total_kib).unwrap_or(0);
 
     (
@@ -26,8 +29,8 @@ pub fn get_ram_usage(sys: &System) -> (String, String, u64) {
 
 /// Gets swap usage values and returns them as a formatted String alongside the usage percentage as unsigned int
 pub fn get_swap_usage(sys: &System) -> (String, String, u64) {
-    let total_kib = (sys.total_swap() / 1024) as f64;
-    let used_kib = (sys.used_swap() / 1024) as f64;
+    let total_kib = (sys.total_swap() / KIB_TO_MB) as f64;
+    let used_kib = (sys.used_swap() / KIB_TO_MB) as f64;
     let percentage = get_percentage_from_part(used_kib, total_kib).unwrap_or(0);
 
     (
@@ -54,7 +57,16 @@ pub fn get_uptime() -> String {
 
 /// Gets disk (root) usage and returns in GB and percentage (floored)
 pub fn get_directory_usage(directory: &str) -> (u64, u64, u64) {
-    let stats = statvfs(directory).unwrap();
+    let stats = match statvfs(directory) {
+        Ok(stats) => stats,
+        Err(e) => {
+            eprintln!(
+                "Unable to get directory usage for '{}', defaulting to 0: \n{}",
+                directory, e
+            );
+            return (0, 0, 0); // Return zeros if unable to get disk stats
+        }
+    };
 
     // Cast these to u64 for closs platform compatibility
     // FIXME: shows absurd numbers on MacOS for some reason
@@ -65,7 +77,7 @@ pub fn get_directory_usage(directory: &str) -> (u64, u64, u64) {
 
     let percentage = get_percentage_from_part(used as f64, total as f64).unwrap_or(0);
 
-    (total / 1_000_000_000, used / 1_000_000_000, percentage)
+    (total / BYTES_TO_GB, used / BYTES_TO_GB, percentage)
 }
 
 /// Gets os name on any given system

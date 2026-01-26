@@ -3,10 +3,23 @@
 use std::fs;
 use std::path::Path;
 
+const KIB_IN_MB: f64 = 1024.0;
+const KIB_IN_GB: f64 = 1024.0 * 1024.0; // We are declaring it as f64 as we'll use it as a float in this file to minimize casting
+
 /// Gets content from a single line file and trims it
-pub fn get_trimmed(path: &Path) -> String {
-    let content = fs::read_to_string(path).unwrap_or(String::from("Null"));
-    content.trim().to_string() // Remove any whitespace or \n using .trim()
+///
+/// # Errors
+/// Returns an error if the file cannot be read or if the trimmed content is empty
+pub fn get_trimmed(path: &Path) -> Result<String, String> {
+    let content = fs::read_to_string(path).map_err(|e| format!("Failed to read file: {}", e))?;
+
+    let trimmed = content.trim().to_string();
+
+    if trimmed.is_empty() {
+        Err("File content is empty".to_string())
+    } else {
+        Ok(trimmed)
+    }
 }
 
 /// Converts KiB figures into GB, MB or unchanged based on its size.
@@ -18,15 +31,15 @@ pub fn convert_to_bytes(memory_kib: f64) -> Result<String, String> {
         return Err("Memory value cannot be negative".to_string());
     }
 
-    if memory_kib >= (1024.0 * 1024.0) {
+    if memory_kib >= KIB_IN_GB {
         // If memory is more than 1GB, transform it to GB
         // 1 GB = (1024 * 1024) KiB
-        let memory_gb = round_to_two_decimal(memory_kib / (1024.0 * 1024.0));
+        let memory_gb = round_to_two_decimal(memory_kib / (KIB_IN_GB));
         Ok(format!("{} GB", memory_gb))
-    } else if memory_kib >= 1024.0 {
+    } else if memory_kib >= KIB_IN_MB {
         // Same as before but with MB
         // 1 MB = 1024 KiB
-        let memory_mb = round_to_two_decimal(memory_kib / 1024.0);
+        let memory_mb = round_to_two_decimal(memory_kib / KIB_IN_MB);
         Ok(format!("{} MB", memory_mb))
     } else {
         // Else, just return it in KiB
@@ -38,6 +51,9 @@ pub fn convert_to_bytes(memory_kib: f64) -> Result<String, String> {
 pub fn get_percentage_from_part(part: f64, total: f64) -> Result<u64, String> {
     if part < 0.0 || total < 0.0 {
         return Err("Part or total cannot be negative".to_string());
+    }
+    if total == 0.0 {
+        return Err("Division by zero error avoided: total cannot be 0".to_string());
     }
     Ok((part / total * 100.0).floor() as u64)
 }

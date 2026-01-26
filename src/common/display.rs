@@ -6,21 +6,21 @@ use sysinfo::System;
 
 fn color_percentage(percentage: u64) -> ColoredString {
     if percentage < 40 {
-        (percentage.to_string() + "%").green()
+        format!("{}%", percentage).green()
     } else if (40..80).contains(&percentage) {
-        (percentage.to_string() + "%").yellow()
+        format!("{}%", percentage).yellow()
     } else {
-        (percentage.to_string() + "%").red()
+        format!("{}%", percentage).red()
     }
 }
 
 fn color_percentage_inverse(percentage: f64) -> ColoredString {
     if percentage < 30.0 {
-        (percentage.to_string() + "%").red()
+        format!("{}%", percentage).red()
     } else if (30.0..70.0).contains(&percentage) {
-        (percentage.to_string() + "%").yellow()
+        format!("{}%", percentage).yellow()
     } else {
-        (percentage.to_string() + "%").green()
+        format!("{}%", percentage).green()
     }
 }
 
@@ -56,14 +56,15 @@ pub fn display_swap_usage(sys: &System) {
     let (total, used, percentage) = get_swap_usage(sys);
     if extract_numeric_value(&total).is_ok_and(|v| v == 0.0) {
         println!("{} Disabled", "Swap:".bold())
+    } else {
+        println!(
+            "{} {} / {} ({})",
+            "Swap:".bold(),
+            used,
+            total,
+            color_percentage(percentage)
+        );
     }
-    println!(
-        "{} {} / {} ({})",
-        "Swap:".bold(),
-        used,
-        total,
-        color_percentage(percentage)
-    );
 }
 
 pub fn display_uptime() {
@@ -72,11 +73,11 @@ pub fn display_uptime() {
 
 pub fn display_battery() {
     let (capacity, status) = platform::get_battery();
-    if capacity != "Null" && status != "Null" {
+    if capacity != "Unavailable" && status != "Unavailable" {
         println!(
             "{} {} ({})",
             "Battery:".bold(),
-            color_percentage_inverse(capacity.parse::<f64>().unwrap()),
+            color_percentage_inverse(capacity.parse::<f64>().unwrap_or(0.0)),
             status
         );
     }
@@ -92,7 +93,7 @@ pub fn display_disk_usage() {
     let (total, used, percentage) = platform::get_disk_usage();
     println!(
         "{} {}GB / {}GB ({})",
-        "Disk (/):".bold(),
+        "Disk (/):".bold(), // FIXME: Shows "/" dir statically
         used,
         total,
         color_percentage(percentage)

@@ -43,7 +43,7 @@ pub fn load_config() -> Config {
     // On macOS: ~/Library/Application Support/rustfetch/config.toml
     let config_path = dirs::config_dir()
         .map(|p| p.join("rustfetch/config.toml")) // Add file path
-        .unwrap_or_else(|| PathBuf::from("rustfetch. toml")); // Fallback = current directory
+        .unwrap_or_else(|| PathBuf::from("rustfetch.toml")); // Fallback = current directory
 
     if let Ok(content) = std::fs::read_to_string(&config_path) {
         // If parsing fails, use defaults instead
