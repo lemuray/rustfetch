@@ -10,7 +10,7 @@ use crate::{
 fn color_percentage(percentage: u64) -> ColoredString {
     if percentage < 40 {
         format!("{}%", percentage).green()
-    } else if (40..80).contains(&percentage) {
+    } else if (40 .. 80).contains(&percentage) {
         format!("{}%", percentage).yellow()
     } else {
         format!("{}%", percentage).red()
@@ -20,7 +20,7 @@ fn color_percentage(percentage: u64) -> ColoredString {
 fn color_percentage_inverse(percentage: f64) -> ColoredString {
     if percentage < 30.0 {
         format!("{}%", percentage).red()
-    } else if (30.0..70.0).contains(&percentage) {
+    } else if (30.0 .. 70.0).contains(&percentage) {
         format!("{}%", percentage).yellow()
     } else {
         format!("{}%", percentage).green()
@@ -89,4 +89,14 @@ pub fn display_disk_usage() {
         total,
         color_percentage(percentage)
     )
+}
+
+/// Formats frequency to GHz or MHz
+pub fn display_cpu_frequency(sys: &System) {
+    let frequency = get_cpu_frequency(sys);
+    if frequency >= 1000 {
+        println!("{} {} GHz", "Frequency".bold(), frequency as f64 / 1000.0)
+    } else {
+        println!("{} {} MHz", "Frequency".bold(), frequency)
+    }
 }

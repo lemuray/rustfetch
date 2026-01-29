@@ -48,4 +48,7 @@ fn main() {
     if config.display.disk {
         common::display_disk_usage();
     }
+    if config.display.cpu_frequency {
+        common::display_cpu_frequency(&sys);
+    }
 }

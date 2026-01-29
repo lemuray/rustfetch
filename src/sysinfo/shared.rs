@@ -5,6 +5,8 @@ use crate::common::*;
 
 const BYTES_TO_GB: u64 = 1_000_000_000;
 const KIB_TO_MB: u64 = 1024;
+const SECONDS_TO_HOURS: u64 = 3600;
+const MINUTES_TO_HOURS: u64 = 60;
 
 /// Creates a System variable once and refreshes all the needed features
 pub fn create_system() -> System {
@@ -15,7 +17,7 @@ pub fn create_system() -> System {
 }
 
 /// Gets RAM usage values and returns them as a formatted String alongside the usage percentage as
-/// unsigned int
+/// unsigned int. Returns 0 on all values in case any error occurs
 pub fn get_ram_usage(sys: &System) -> (String, String, u64) {
     let total_kib = (sys.total_memory() / KIB_TO_MB) as f64;
     let used_kib = (sys.used_memory() / KIB_TO_MB) as f64;
@@ -29,7 +31,7 @@ pub fn get_ram_usage(sys: &System) -> (String, String, u64) {
 }
 
 /// Gets swap usage values and returns them as a formatted String alongside the usage percentage as
-/// unsigned int
+/// unsigned int. Returns 0 on all values in case any error occurs
 pub fn get_swap_usage(sys: &System) -> (String, String, u64) {
     let total_kib = (sys.total_swap() / KIB_TO_MB) as f64;
     let used_kib = (sys.used_swap() / KIB_TO_MB) as f64;
@@ -46,9 +48,9 @@ pub fn get_swap_usage(sys: &System) -> (String, String, u64) {
 pub fn get_uptime() -> String {
     let uptime_seconds = System::uptime();
 
-    let hours = uptime_seconds / 3600;
-    let minutes = (uptime_seconds % 3600) / 60;
-    let seconds = uptime_seconds % 60;
+    let hours = uptime_seconds / SECONDS_TO_HOURS;
+    let minutes = (uptime_seconds % SECONDS_TO_HOURS) / MINUTES_TO_HOURS;
+    let seconds = uptime_seconds % MINUTES_TO_HOURS;
 
     if hours < 1 {
         format!("{:02}m {:02}s", minutes, seconds)
@@ -98,4 +100,9 @@ pub fn get_cpu_name(sys: &System) -> String {
         .first()
         .map(|cpu| cpu.brand().to_string())
         .unwrap_or_else(|| String::from("Unknown CPU"))
+}
+
+/// Gets CPU frequency in MHz
+pub fn get_cpu_frequency(sys: &System) -> u64 {
+    sys.cpus().first().map(|cpu| cpu.frequency()).unwrap_or_else(|| 0)
 }

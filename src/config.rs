@@ -1,3 +1,9 @@
+//! Main file for the configuration setup
+//! To regenerate the config file and test new setups just run
+//! rm "YOUR_OS_FILE_PATH" if on unix-like system
+
+// TODO: On command line, add --reset-config to make test easier
+
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize}; // This transforms toml files into structs and viceversa
@@ -19,6 +25,7 @@ pub struct DisplayConfig {
     pub battery: bool,
     pub disk: bool,
     pub power_draw: bool,
+    pub cpu_frequency: bool,
 }
 
 impl Default for DisplayConfig {
@@ -34,6 +41,7 @@ impl Default for DisplayConfig {
             battery: true,
             disk: true,
             power_draw: false,
+            cpu_frequency: false,
         }
     }
 }
