@@ -1,5 +1,7 @@
 # Planning on adding a feature?
-First of all, if you haven't done it yet, **read the [contributing rules](../CONTRIBUTING.md)**. Now lets get specific on what you want to add.
+First of all, if you haven't done it yet, **read the [contributing rules](../CONTRIBUTING.md)**.
+
+Next, make sure you understand the file(s) you want to modify by **reading [rustfetch's architecture](architecture.md)**.
 
 
 
@@ -13,7 +15,7 @@ CPU: AMD Ryzen 5 5600X
 First, to determine how you're going to add said feature read the following list of possible ways you can get a concrete way of retrieving specific informations:
 
 - **Generic system info** (E.g: CPU Name, Uptime exc) -> look into [sysinfo docs](https://docs.rs/sysinfo/latest/sysinfo/index.html).
-These go into ```src/sysinfo/shared.rs```
+These go into **[src/sysinfo/shared.rs](architecture.md/#sharedrs)**
 
 - **Specific OS-bound info** (E.g: Init system on linux) -> these informations will probably be in a **file on the target system**, in this case ```/run/systemd/system```.
 These go into ```src/platform/OS_NAME.rs```
@@ -48,6 +50,8 @@ Lets suppose you want to add a flag for the rustfetch command, first get familia
 
 Since these options cannot be formally tested in Rust, **always test edge cases** (if present) and document them inside your **PR description**
 
+More on how the CLI works in the [projects's architecture](architecture.md/#clirs).
+
 
 
 ## Adding config related features
@@ -64,7 +68,11 @@ cargo build --release
 ./target/release/rustfetch --all
 ```
 
+More on how configuration is handled in the [projects's architecture](architecture.md/#configrs).
+
 
 
 ## Tests
 **Always create and run tests** for your implemented features inside ```tests/FILENAME_tests.rs```, tests must include **edge cases** and explicit **error handling**.
+
+More on how tests are handled in the [projects's architecture](architecture.md/#utils_testsrs).

@@ -14,12 +14,6 @@ use crate::config::load_all_config;
 // Add ASCII art
 // Add CPU, GPU: temps, usage
 
-// NOTICE:
-// When adding a new feature that probably needs to be false by default in config.rs, instead of
-// manually setting everything to true, you can do the following commands:
-// cargo build --version
-// ./target/release/rustfetch --all
-
 fn main() {
     let cli = Cli::parse();
 

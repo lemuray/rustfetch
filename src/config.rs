@@ -2,10 +2,6 @@
 //! To regenerate the config file and test new setups just run
 //! rm "YOUR_OS_FILE_PATH" if on unix-like system
 
-// STANDARD PATHS:
-// Linux:  ~/.config/rustfetch/config.toml
-// macOS: ~/Library/Application Support/rustfetch/config.toml
-
 // TODO: On command line, add --reset-config and --all-on to make test easier
 
 use std::path::PathBuf;
