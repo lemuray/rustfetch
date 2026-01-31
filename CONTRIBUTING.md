@@ -2,6 +2,9 @@
 
 Thanks for your interest in contributing! Everyone is welcome and encouraged to contribute. Don't be scared to open a PR just to fix a typo or improve documentation!
 
+## Documentation
+- [How to add a feature](/docs/add_a_feature.md)
+
 ## Getting Started
 
 1. Fork the repository
