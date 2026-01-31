@@ -12,12 +12,12 @@ Modules are the **essential part of this CLI** and they are each field that is s
 ```
 CPU: AMD Ryzen 5 5600X
 ```
-First, to determine how you're going to add said feature read the following list of possible ways you can get a concrete way of retrieving specific informations:
+First, to determine how you're going to add said feature read the following list of possible ways you can get a concrete way of retrieving specific information:
 
 - **Generic system info** (E.g: CPU Name, Uptime exc) -> look into [sysinfo docs](https://docs.rs/sysinfo/latest/sysinfo/index.html).
 These go into **[src/sysinfo/shared.rs](architecture.md/#sharedrs)**
 
-- **Specific OS-bound info** (E.g: Init system on linux) -> these informations will probably be in a **file on the target system**, in this case ```/run/systemd/system```.
+- **Specific OS-bound info** (E.g: Init system on linux) -> these information will probably be in a **file on the target system**, in this case ```/run/systemd/system```.
 These go into ```src/platform/OS_NAME.rs```
 
 - **Other** -> **If what you're trying to implement isn't listed here**, search for the specific crate you're going to use (if any) and **follow existing patterns**. In your PR description, include why you thought this didn't match any other known pattern listed above
@@ -30,8 +30,8 @@ Always remember to read and apply the [tests](#tests) section.
 
 ## Adding a helper function
 To add a helper function, **minimize the use of heavy crates** and:
-<br> If they are **small and specific** to the feature you're adding they can be kept as a **private function** inside the file itself.
-<br> If they get **too big** or can be **shared across multiple files** they must go into in ```src/common/utils.rs``` and have **doc comments** explaining their features thoroughly.
+- If they are **small and specific** to the feature you're adding they can be kept as a **private function** inside the file itself.
+- If they get **too big** or can be **shared across multiple files** they must go into in ```src/common/utils.rs``` and have **doc comments** explaining their features thoroughly.
 
 Always remember to read and apply the [tests](#tests) section.
 
