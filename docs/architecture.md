@@ -34,7 +34,10 @@ Entry point for the program, **handles showing or not showing modules** based on
 - **Creates a System variable** used for sysinfo functions
 -  If the "--all" or "-a" flag is given, **skips config file parsing** entirely to enable all modules (This does not skip unsupported [platform specific modules](#platform)).
 <br>Else, **gets config options** from [config.rs](#configrs) and shows them based on their boolean value.
+- Gets logo info from the dedicated function inside **linux.rs**
 - Runs [display functions](#displayrs) and **passes a reference to the System variable** it created if necessary, this is used as it **significantly saves computing time** by just creating it once and updating it based on what module is being ran.
+<br> The output of the display functions is added to the **info_lines** vector
+- Prints the info_lines vector alongside the logo's lines and **adds padding** to make all the lines be horizontally aligned
 
 ## config.rs
 Main file for configuration handling, **creates and parses a config file** or enables all features:

@@ -3,7 +3,7 @@
 Thanks for your interest in contributing! Everyone is welcome and encouraged to contribute. Don't be scared to open a PR just to fix a typo or improve documentation!
 
 ## Documentation
-- [How to add a feature](/docs/add_a_feature.md)
+Documentation is an essential part of contributing to this project, head over to our **[Docs Hub](docs/README.md)** to get started.
 
 ## Getting Started
 

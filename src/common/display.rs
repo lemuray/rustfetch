@@ -10,7 +10,7 @@ use crate::{
 fn color_percentage(percentage: u64) -> ColoredString {
     if percentage < 40 {
         format!("{}%", percentage).green()
-    } else if (40 .. 80).contains(&percentage) {
+    } else if (40..80).contains(&percentage) {
         format!("{}%", percentage).yellow()
     } else {
         format!("{}%", percentage).red()
@@ -20,69 +20,73 @@ fn color_percentage(percentage: u64) -> ColoredString {
 fn color_percentage_inverse(percentage: f64) -> ColoredString {
     if percentage < 30.0 {
         format!("{}%", percentage).red()
-    } else if (30.0 .. 70.0).contains(&percentage) {
+    } else if (30.0..70.0).contains(&percentage) {
         format!("{}%", percentage).yellow()
     } else {
         format!("{}%", percentage).green()
     }
 }
 
-pub fn display_os() {
-    println!(
+pub fn display_os() -> String {
+    format!(
         "{} {} ({})",
         "OS:".bold(),
         get_os_name(),
         std::env::consts::ARCH // CPU Architecture the program was compiled for
-    );
+    )
 }
 
-pub fn display_kernel() {
-    println!("{} {}", "Kernel:".bold(), platform::format_kernel_version());
+pub fn display_kernel() -> String {
+    format!("{} {}", "Kernel:".bold(), platform::format_kernel_version())
 }
 
-pub fn display_cpu(sys: &System) {
-    println!("{} {}", "CPU:".bold(), get_cpu_name(sys));
+pub fn display_cpu(sys: &System) -> String {
+    format!("{} {}", "CPU:".bold(), get_cpu_name(sys))
 }
 
-pub fn display_ram_usage(sys: &System) {
+pub fn display_ram_usage(sys: &System) -> String {
     let (total, used, percentage) = get_ram_usage(sys);
-    println!("{} {} / {} ({})", "RAM:".bold(), used, total, color_percentage(percentage));
+    format!("{} {} / {} ({})", "RAM:".bold(), used, total, color_percentage(percentage))
 }
 
-pub fn display_swap_usage(sys: &System) {
+pub fn display_swap_usage(sys: &System) -> String {
     let (total, used, percentage) = get_swap_usage(sys);
     if extract_numeric_value(&total).is_ok_and(|v| v == 0.0) {
-        println!("{} Disabled", "Swap:".bold())
+        format!("{} Disabled", "Swap:".bold())
     } else {
-        println!("{} {} / {} ({})", "Swap:".bold(), used, total, color_percentage(percentage));
+        format!("{} {} / {} ({})", "Swap:".bold(), used, total, color_percentage(percentage))
     }
 }
 
-pub fn display_uptime() {
-    println!("{} {}", "Uptime:".bold(), get_uptime());
+pub fn display_uptime() -> String {
+    format!("{} {}", "Uptime:".bold(), get_uptime())
 }
 
-pub fn display_battery() {
+pub fn display_battery() -> Option<String> {
     let (capacity, status) = platform::get_battery();
     if capacity != "Unavailable" && status != "Unavailable" {
-        println!(
+        Some(format!(
             "{} {} ({})",
             "Battery:".bold(),
             color_percentage_inverse(capacity.parse::<f64>().unwrap_or(0.0)),
             status
-        );
+        ))
+    } else {
+        None
     }
 }
-pub fn display_power_draw() {
+pub fn display_power_draw() -> Option<String> {
     let power_draw = get_power_draw();
     if power_draw != 0 {
-        println!("{} {}W", "Power Draw:".bold(), power_draw)
+        Some(format!("{} {}W", "Power Draw:".bold(), power_draw))
+    } else {
+        None
     }
 }
 
-pub fn display_disk_usage() {
+pub fn display_disk_usage() -> String {
     let (total, used, percentage) = platform::get_disk_usage();
-    println!(
+    format!(
         "{} {}GB / {}GB ({})",
         "Disk (/):".bold(), // FIXME: Shows "/" dir statically
         used,
@@ -92,11 +96,11 @@ pub fn display_disk_usage() {
 }
 
 /// Formats frequency to GHz or MHz
-pub fn display_cpu_frequency(sys: &System) {
+pub fn display_cpu_frequency(sys: &System) -> String {
     let frequency = get_cpu_frequency(sys);
     if frequency >= 1000 {
-        println!("{} {} GHz", "Frequency".bold(), frequency as f64 / 1000.0)
+        format!("{} {} GHz", "Frequency".bold(), frequency as f64 / 1000.0)
     } else {
-        println!("{} {} MHz", "Frequency".bold(), frequency)
+        format!("{} {} MHz", "Frequency".bold(), frequency)
     }
 }

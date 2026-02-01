@@ -6,60 +6,94 @@ pub mod sysinfo;
 
 use clap::Parser;
 use cli::Cli;
-use config::load_config;
+use colored::*;
+use std::io::Write;
 
 use crate::config::load_all_config;
+use config::load_config;
+
 
 // TODO:
 // Add ASCII art
 // Add CPU, GPU: temps, usage
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
-
-    // We are creating a System variable which we are sharing across all sysinfo functions to
-    // have not have overhead creating that variable inside every function
     let sys = sysinfo::create_system();
-
-    // If the --all flag is active the config variable will be set to the load_all_config function
     let config = if cli.all {
         load_all_config()
     } else {
         load_config()
     };
 
+    let logo_lines = platform::get_logo_lines();
+
+    // Here we're creating an empty vector that'll hold our printing information in different indexes
+    let mut info_lines: Vec<String> = Vec::new();
+
     if config.display.os {
-        common::display_os();
+        info_lines.push(common::display_os());
     }
     if config.display.kernel {
-        common::display_kernel();
+        info_lines.push(common::display_kernel());
     }
     if config.display.cpu {
-        common::display_cpu(&sys);
+        info_lines.push(common::display_cpu(&sys));
     }
     if config.display.ram {
-        common::display_ram_usage(&sys);
+        info_lines.push(common::display_ram_usage(&sys));
     }
     if config.display.swap {
-        common::display_swap_usage(&sys);
+        info_lines.push(common::display_swap_usage(&sys));
     }
     if config.display.uptime {
-        common::display_uptime();
+        info_lines.push(common::display_uptime());
     }
+
     #[cfg(target_os = "linux")]
     {
-        // These info are only available on Linux
-        if config.display.battery {
-            common::display_battery();
+        if config.display.battery
+            && let Some(battery_info) = common::display_battery()
+        {
+            info_lines.push(battery_info);
         }
-        if config.display.power_draw {
-            common::display_power_draw();
+        if config.display.power_draw
+            && let Some(power_draw) = common::display_power_draw()
+        {
+            info_lines.push(power_draw);
         }
     }
+
     if config.display.disk {
-        common::display_disk_usage();
+        info_lines.push(common::display_disk_usage());
     }
     if config.display.cpu_frequency {
-        common::display_cpu_frequency(&sys);
+        info_lines.push(common::display_cpu_frequency(&sys));
     }
+
+    let mut stdout = std::io::stdout();
+    let max_lines = logo_lines.len().max(info_lines.len());
+    // We get the maximum length from the logo using .max()
+    let logo_column_width = logo_lines.iter().map(|l| l.len()).max().unwrap_or(0);
+
+    for i in 0..max_lines {
+        if i < logo_lines.len() {
+            // FIXME: displays only blue
+            write!(stdout, "{}", logo_lines[i].blue())?;
+            // TODO: Add a command line argument to increase padding (padding += cli.arg)
+            let padding = logo_column_width.saturating_sub(logo_lines[i].len());
+            write!(stdout, "{:width$}", "", width = padding)?;
+        } else {
+            write!(stdout, "{:width$}", "", width = logo_column_width)?;
+        }
+
+        if i < info_lines.len() {
+            writeln!(stdout, "  {}", info_lines[i].white())?;
+        } else {
+            writeln!(stdout)?;
+        }
+    }
+
+    stdout.flush()?;
+    Ok(())
 }
