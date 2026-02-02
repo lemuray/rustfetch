@@ -1,5 +1,6 @@
-use colored::*;
 use std::{fs, path::Path};
+
+use colored::*;
 
 use crate::{common::*, sysinfo::*};
 
@@ -53,8 +54,10 @@ pub fn format_kernel_version() -> String {
 /// Example: if distro_id = ubuntu, then we return line.orange()
 pub fn colorize_logo_line(distro_id: &str, line: &str) -> ColoredString {
     match distro_id {
+        // The exact colors should be tested on your distro and eventually changed it they do not
+        // match the color of the distro's logo excessively
         "arch" => line.truecolor(23, 147, 209),
-        "ubuntu" => line.truecolor(255, 156, 0), // Orange
+        "ubuntu" => line.truecolor(255, 156, 0),
         "cachyos" => line.truecolor(0, 184, 148),
         "fedora" => line.truecolor(11, 87, 164),
         "garuda" => line.truecolor(138, 43, 226),

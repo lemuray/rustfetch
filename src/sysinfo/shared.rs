@@ -1,6 +1,7 @@
+use std::fs;
+
 use nix::sys::statvfs::*;
 use sysinfo::*;
-use std::fs;
 
 use crate::common::*;
 

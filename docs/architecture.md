@@ -34,10 +34,10 @@ Entry point for the program, **handles showing or not showing modules** based on
 - **Creates a System variable** used for sysinfo functions
 -  If the "--all" or "-a" flag is given, **skips config file parsing** entirely to enable all modules (This does not skip unsupported [platform specific modules](#platform)).
 <br>Else, **gets config options** from [config.rs](#configrs) and shows them based on their boolean value.
-- Gets logo info from the dedicated function inside **linux.rs**
+- Gets the distro id from the dedicated function inside the **platform** crate
 - Runs [display functions](#displayrs) and **passes a reference to the System variable** it created if necessary, this is used as it **significantly saves computing time** by just creating it once and updating it based on what module is being ran.
 <br> The output of the display functions is added to the **info_lines** vector
-- Prints the info_lines vector alongside the logo's lines and **adds padding** to make all the lines be horizontally aligned
+- Prints the info_lines vector alongside the logo's lines and **adds padding** to make all the lines be horizontally aligned. As the line get printed, they are colored according to the distro_id
 
 ## config.rs
 Main file for configuration handling, **creates and parses a config file** or enables all features:
@@ -51,10 +51,7 @@ Main file for configuration handling, **creates and parses a config file** or en
 Uses [clap](https://docs.rs/clap/latest/clap/) to **parse command line arguments** and creates a public Cli struct with all the possible flags in it. This file also decides which description every flag should have when running "rustfetch --help".
 
 Example of a standard flag:
-```
-#[arg(_, _, help = "Description goes here")]
-pub argument_name: argument_variable_type
-```
+![Example](./images/cli_argument_description.avif)
 
 ## display.rs
 Contains all functions related to showing the values returned from other files as formatted text.
@@ -77,7 +74,7 @@ Contains all functions which run **regardless of OS**, the [sysinfo crate](https
 
 Every function that uses sysinfo functions requires a **reference to the main System variable** that it will use internally.
 
-Functions inside this file should never handle displaying the values, as that is exclusively handled in [display.rs](#displayrs).
+Functions inside this file should never handle displaying the values, as that is almost always exclusively handled in [display.rs](#displayrs).
 
 ## utils_tests.rs
 Testing file for utils functions, the testing requirements are usually:

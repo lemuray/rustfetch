@@ -29,6 +29,13 @@ This is a system info tool that should be fast and lightweight. Keep these in mi
 - **Minimize system calls** - batch operations when possible, avoid `sys_refresh_all()` if you only need specific data
 - **Keep dependencies minimal** - avoid pulling in large crates for small tasks
 
+### Recommended extensions
+If you are using **vscode** the following extensions are **highly recommended**:
+- [Error Lens](vscode:extension/usernamehw.errorlens) - Highlights errors inline
+- [GitLens](vscode:extension/eamodio.gitlens) - Shows who committed what and a bunch of other functionalities
+- [Even Better TOML](vscode:extension/tamasfe.even-better-toml) - Enhances TOML file editing
+- [Todo Tree](vscode:extension/gruntfuggly.todo-tree) - Highlights TODO and FIXME, these are extensively used in the code
+
 ## Pull Requests
 
 ### Size
