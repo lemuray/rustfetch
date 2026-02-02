@@ -48,16 +48,6 @@ pub fn format_kernel_version() -> String {
     format!("Linux {}", get_kernel_version())
 }
 
-pub fn get_logo_lines(distro_id: &str) -> Vec<String> {
-    // TODO: This should be a path.join but fs::read_to_string hates Pathbuf
-    let ascii_art_path = format!("ascii/{}.txt", distro_id);
-
-    fs::read_to_string(&ascii_art_path)
-        .ok()
-        .map(|content| content.lines().map(|l| l.to_string()).collect())
-        .unwrap_or_default()
-}
-
 /// Getting a reference to an element of the vector of strings we're printing and matching it with
 /// the distro id, we get return its colorized version.
 /// Example: if distro_id = ubuntu, then we return line.orange()

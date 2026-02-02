@@ -1,5 +1,6 @@
 use nix::sys::statvfs::*;
 use sysinfo::*;
+use std::fs;
 
 use crate::common::*;
 
@@ -105,4 +106,14 @@ pub fn get_cpu_name(sys: &System) -> String {
 /// Gets CPU frequency in MHz
 pub fn get_cpu_frequency(sys: &System) -> u64 {
     sys.cpus().first().map(|cpu| cpu.frequency()).unwrap_or_else(|| 0)
+}
+
+pub fn get_logo_lines(distro_id: &str) -> Vec<String> {
+    // TODO: This should be a path.join but fs::read_to_string hates Pathbuf
+    let ascii_art_path = format!("ascii/{}.txt", distro_id);
+
+    fs::read_to_string(&ascii_art_path)
+        .ok()
+        .map(|content| content.lines().map(|l| l.to_string()).collect())
+        .unwrap_or_default()
 }

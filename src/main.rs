@@ -14,7 +14,6 @@ use config::load_config;
 use crate::{config::load_all_config, platform::colorize_logo_line};
 
 // TODO:
-// Add ASCII art
 // Add CPU, GPU: temps, usage
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -27,7 +26,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let distro_id = platform::get_distro_id();
-    let logo_lines = platform::get_logo_lines(&distro_id);
+    let logo_lines = sysinfo::get_logo_lines(&distro_id);
 
     // Here we're creating an empty vector that'll hold our printing information in different
     // indexes
@@ -80,7 +79,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     for i in 0..max_lines {
         if i < logo_lines.len() {
-            // FIXME: displays only blue
             write!(stdout, "{}", colorize_logo_line(&distro_id, &logo_lines[i]))?;
             // TODO: Add a command line argument to increase padding (padding += cli.arg)
             let padding = logo_column_width.saturating_sub(logo_lines[i].len());

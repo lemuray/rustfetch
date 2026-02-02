@@ -19,3 +19,11 @@ pub fn get_disk_usage() -> (u64, u64, u64) {
 pub fn format_kernel_version() -> String {
     format!("MacOS {}", get_kernel_version())
 }
+
+pub fn get_distro_id() -> String {
+    String::from("macos")
+}
+
+pub fn colorize_logo_line(distro_id: &str, line: &str) -> ColoredString {
+    line.white()
+}
