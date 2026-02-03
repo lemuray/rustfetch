@@ -2,8 +2,6 @@
 //! To regenerate the config file and test new setups just run
 //! rm "YOUR_OS_FILE_PATH" if on unix-like system
 
-// TODO: On command line, add --reset-config and --all-on to make test easier
-
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize}; // This transforms toml files into structs and viceversa
