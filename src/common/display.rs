@@ -2,7 +2,7 @@ use colored::*;
 use sysinfo::System;
 
 use crate::{
-    common::extract_numeric_value,
+    common::{extract_numeric_value, round_to_two_decimal},
     platform::{self, get_power_draw},
     sysinfo::*,
 };
@@ -99,7 +99,7 @@ pub fn display_disk_usage() -> String {
 pub fn display_cpu_frequency(sys: &System) -> String {
     let frequency = get_cpu_frequency(sys);
     if frequency >= 1000 {
-        format!("{} {} GHz", "Frequency".bold(), frequency as f64 / 1000.0)
+        format!("{} {} GHz", "Frequency".bold(), round_to_two_decimal(frequency as f64 / 1000.0))
     } else {
         format!("{} {} MHz", "Frequency".bold(), frequency)
     }

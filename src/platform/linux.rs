@@ -4,8 +4,8 @@ use colored::*;
 
 use crate::{common::*, sysinfo::*};
 
-const BATTERY_CAPACITY_DIR: &str = "sys/class/power_supply/BAT0/capacity";
-const BATTERY_STATUS_DIR: &str = "sys/class/power_supply/BAT0/capacity";
+const BATTERY_CAPACITY_DIR: &str = "/sys/class/power_supply/BAT0/capacity";
+const BATTERY_STATUS_DIR: &str = "/sys/class/power_supply/BAT0/status";
 const BATTERY_POWER_DRAW_DIR: &str = "/sys/class/power_supply/BAT0/power_now";
 const ROOT_DIR: &str = "/";
 
