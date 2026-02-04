@@ -20,14 +20,14 @@ pub struct DisplayConfig {
     // The names MUST match the names inside config.toml
     pub os: bool,
     pub kernel: bool,
+    pub uptime: bool,
     pub cpu: bool,
+    pub cpu_frequency: bool,
     pub ram: bool,
     pub swap: bool,
-    pub uptime: bool,
-    pub battery: bool,
     pub disk: bool,
+    pub battery: bool,
     pub power_draw: bool,
-    pub cpu_frequency: bool,
 }
 
 impl Default for DisplayConfig {
@@ -36,14 +36,14 @@ impl Default for DisplayConfig {
             // If the config file is missing or corrupted, default to this
             os: true,
             kernel: true,
+            uptime: true,
             cpu: true,
+            cpu_frequency: false,
             ram: true,
             swap: true,
-            uptime: true,
-            battery: true,
             disk: true,
+            battery: true,
             power_draw: false,
-            cpu_frequency: false,
         }
     }
 }
@@ -54,16 +54,57 @@ impl All for DisplayConfig {
         Self {
             os: true,
             kernel: true,
+            uptime: true,
             cpu: true,
+            cpu_frequency: true,
             ram: true,
             swap: true,
-            uptime: true,
-            battery: true,
             disk: true,
+            battery: true,
             power_draw: true,
-            cpu_frequency: true,
         }
     }
+}
+
+fn get_config_template() -> String {
+    r#"# Rustfetch config file
+
+[display]
+# Display the OS name
+os = true
+# Display the kernel version
+kernel = true
+# Display system uptime
+uptime = true
+
+# CPU INFO
+# --------
+# Display CPU info
+cpu = true
+    cpu_frequency = false
+
+# MEMORY INFO
+# -----------
+# Display RAM usage
+ram = true
+# Display swap usage
+swap = true
+
+# DISK INFO
+# ---------
+# Display disk usage
+disk = true
+
+# LAPTOP-RELATED INFO (Linux only)
+# If the device is not a laptop, turning
+# these on just wont display anything
+# --------------------------------------
+# Display battery information
+battery = true
+# Display power draw
+power_draw = false
+"#
+    .to_string()
 }
 
 pub fn load_config() -> Config {
@@ -87,8 +128,7 @@ pub fn load_config() -> Config {
             let _ = std::fs::create_dir_all(parent);
         }
 
-        let toml_string =
-            toml::to_string_pretty(&default_config).expect("Failed to serialize default config");
+        let toml_string = get_config_template();
 
         if let Err(e) = std::fs::write(&config_path, toml_string) {
             eprintln!("Warning: Could not create config file at {:?}: {}", config_path, e);

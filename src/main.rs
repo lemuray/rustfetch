@@ -18,12 +18,12 @@ use crate::{config::load_all_config, platform::colorize_logo_line};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
-    let sys = sysinfo::create_system();
     let config = if cli.all {
         load_all_config()
     } else {
         load_config()
     };
+    let sys = sysinfo::create_system(&config);
 
     let distro_id = platform::get_distro_id();
     let logo_lines = sysinfo::get_logo_lines(&distro_id);
@@ -39,7 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         info_lines.push(common::display_kernel());
     }
     if config.display.cpu {
-        info_lines.push(common::display_cpu(&sys));
+        info_lines.push(common::display_cpu(&sys, &config));
     }
     if config.display.ram {
         info_lines.push(common::display_ram_usage(&sys));
@@ -67,9 +67,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if config.display.disk {
         info_lines.push(common::display_disk_usage());
-    }
-    if config.display.cpu_frequency {
-        info_lines.push(common::display_cpu_frequency(&sys));
     }
 
     let mut stdout = std::io::stdout();

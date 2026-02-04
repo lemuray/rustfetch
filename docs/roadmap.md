@@ -11,9 +11,9 @@ This project has gone through countless iterations and it is always changing, fa
 - Pristine error handling and testing ( <code style="color : orange">Important</code> )
 - Test Curl script compatibility across systems ( <code style="color : orange">Important</code> )
 - get_directory_usage inside shared.rs displays huge numbers on macOS ( <code style="color : orange">Important</code> )
-- Move CPU usage and name to single line and print according to the TOML file ( <code style="color : green">Minor</code> )
+- ~~Move CPU usage and name to single line and print according to the TOML file ( <code style="color : green">Minor</code> )~~
 - Add CPU and GPU temps, GPU name ( <code style="color : green">Minor</code> )
-- Functions inside shared.rs share a System variable, but the variable is refreshed always regardless of what is on or not. This could be fixed by just passing a black System variable and refreshing what's needed inside the function, though this could worsen performance if a lot of values want to check the same refreshed variable ( <code style="color : green">Minor</code> )
+- ~~Functions inside shared.rs share a System variable, but the variable is refreshed always regardless of what is on or not. This could be fixed by just passing a blank System variable and refreshing what's needed inside the function, though this could worsen performance if a lot of values want to check the same refreshed variable ( <code style="color : green">Minor</code> )~~
 - Add CLI command to increase padding on the logo, both left and right to the logo ( <code style="color : green">Minor</code> )
 
 ## Version 0.3.0

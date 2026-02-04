@@ -3,6 +3,7 @@ use sysinfo::System;
 
 use crate::{
     common::{extract_numeric_value, round_to_two_decimal},
+    config::Config,
     platform::{self, get_power_draw},
     sysinfo::*,
 };
@@ -40,8 +41,22 @@ pub fn display_kernel() -> String {
     format!("{} {}", "Kernel:".bold(), platform::format_kernel_version())
 }
 
-pub fn display_cpu(sys: &System) -> String {
-    format!("{} {}", "CPU:".bold(), get_cpu_name(sys))
+pub fn display_cpu(sys: &System, config: &Config) -> String {
+    let cpu_name = get_cpu_name(sys);
+
+    let cpu_frequency;
+    if config.display.cpu_frequency {
+        let frequency = get_cpu_frequency(sys);
+        if frequency >= 1000 {
+            cpu_frequency = format!(" @ {} GHz ", round_to_two_decimal(frequency as f64 / 1000.0))
+        } else {
+            cpu_frequency = format!(" @ {} MHz ", frequency)
+        }
+    } else {
+        cpu_frequency = String::from("");
+    }
+
+    format!("{} {}{}", "CPU:".bold(), cpu_name, cpu_frequency)
 }
 
 pub fn display_ram_usage(sys: &System) -> String {
@@ -93,14 +108,4 @@ pub fn display_disk_usage() -> String {
         total,
         color_percentage(percentage)
     )
-}
-
-/// Formats frequency to GHz or MHz
-pub fn display_cpu_frequency(sys: &System) -> String {
-    let frequency = get_cpu_frequency(sys);
-    if frequency >= 1000 {
-        format!("{} {} GHz", "Frequency".bold(), round_to_two_decimal(frequency as f64 / 1000.0))
-    } else {
-        format!("{} {} MHz", "Frequency".bold(), frequency)
-    }
 }

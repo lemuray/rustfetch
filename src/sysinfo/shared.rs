@@ -3,18 +3,24 @@ use std::fs;
 use nix::sys::statvfs::*;
 use sysinfo::*;
 
-use crate::common::*;
+use crate::{common::*, config::Config};
 
 const BYTES_TO_GB: u64 = 1_000_000_000;
 const KIB_TO_MB: u64 = 1024;
 const SECONDS_TO_HOURS: u64 = 3600;
 const MINUTES_TO_HOURS: u64 = 60;
 
-/// Creates a System variable once and refreshes all the needed features
-pub fn create_system() -> System {
+/// Creates a System variable once and refreshes features according to what is on in the config file
+pub fn create_system(config: &Config) -> System {
     let mut sys = System::new();
-    sys.refresh_memory();
-    sys.refresh_cpu_all();
+    if config.display.ram || config.display.swap {
+        sys.refresh_memory();
+    }
+    if config.display.cpu {
+        // Refreshing all cpu info is cheap performance-wise and just freshing the cpu name is not
+        // really readable with this crate imo
+        sys.refresh_cpu_all();
+    }
     sys
 }
 
@@ -100,7 +106,29 @@ pub fn get_kernel_version() -> String {
 pub fn get_cpu_name(sys: &System) -> String {
     sys.cpus()
         .first()
-        .map(|cpu| cpu.brand().to_string())
+        .map(|cpu| {
+            let full_name = cpu.brand();
+            let mut end_pos = full_name.len();
+
+            // cpu.brand() returns the full name of the CPU, for example:
+            // "Ryzen 5 5600X 6-Core Processor"
+            // We just find the first occurrence of any known suffix and get anything before it
+            if let Some(pos) = full_name.find(" with ") {
+                end_pos = end_pos.min(pos);
+            }
+            if let Some(pos) = full_name.find(" @ ") {
+                end_pos = end_pos.min(pos);
+            }
+
+            // looks for "-Core" pattern like "6-Core Processor"
+            if let Some(pos) = full_name.find("-Core")
+                && let Some(space_pos) = full_name[..pos].rfind(' ')
+            {
+                end_pos = end_pos.min(space_pos);
+            }
+
+            full_name[..end_pos].trim().to_string()
+        })
         .unwrap_or_else(|| String::from("Unknown CPU"))
 }
 
