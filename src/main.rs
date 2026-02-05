@@ -10,8 +10,9 @@ use clap::Parser;
 use cli::Cli;
 use colored::*;
 use config::load_config;
+use rustfetch::sysinfo::get_gpu_info;
 
-use crate::{config::load_all_config, platform::colorize_logo_line};
+use crate::{common::display_gpu_info, config::load_all_config, platform::colorize_logo_line};
 
 // TODO:
 // Add CPU, GPU: temps, usage
@@ -40,6 +41,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     if config.display.cpu {
         info_lines.push(common::display_cpu(&sys, &config));
+    }
+    if config.display.gpu
+        && let Some(gpu_info) = display_gpu_info()
+    {
+        info_lines.push(gpu_info);
     }
     if config.display.ram {
         info_lines.push(common::display_ram_usage(&sys));
@@ -74,7 +80,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // We get the maximum length from the logo using .max()
     let logo_column_width = logo_lines.iter().map(|l| l.len()).max().unwrap_or(0);
 
-    for i in 0 .. max_lines {
+    for i in 0..max_lines {
         if i < logo_lines.len() {
             write!(stdout, "{}", colorize_logo_line(&distro_id, &logo_lines[i]))?;
             // TODO: Add a command line argument to increase padding (padding += cli.arg)
