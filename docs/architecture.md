@@ -23,6 +23,8 @@ src/
     └── <a href="#sharedrs">shared.rs</a>   # Generic sysinfo functions
 tests/              # Tests for "cargo test"
 └── <a href="#utils_testsrs">utils_tests.rs</a>  # Tests specific to utils
+
+<a href="#installsh">install.sh</a>          # Bash installation script
 </pre>
 
 > Note: most mod.rs (and lib.rs) files have been omitted from this file tree as they all share the same purpose: exposing modules
@@ -80,3 +82,14 @@ Testing file for utils functions, the testing requirements are usually:
 - **Correct input** -> Should return the expected value
 - **Edge cases** -> Used to **enhance error handling** and **understand how the function behaves** deeply. These should be **technically correct though very unlikely** inputs (E.g: rounding an f64::Infinity) and checking the output is still Infinity
 - **Incorrect input** -> Testing the function with an **input thats incoherent with what the function is asking**, **assessing the function is returning an error** and, if present, checking if the **error message** is correct
+
+## install.sh
+Bash automated installation script for the program that can work through curl, its jobs are the following:
+- Checks if the OS is supported, if it is not, it refuses to install
+- Gets architecture and OS name and normalizes them to **match the release syntax**
+- **Detects shell** (zsh, bash exc) to parse its config file, if it is not found it skips automatic shell integration
+- Parses the config file to find any system info tools from a static list of the most famous CLIs similar to this (neofetch, fastfetch exc). If any is detected, it uses **regex** to assert the line is a standalone command and not nested in some complicated logic we shouldn't touch
+- If any command is found and it is a **standalone**, it asks the user if they want to replace it with rustfetch. If there is no command at all it asks to append rustfetch. Else, it skips shell integration.
+- **Fetches the latest version** from the normalized names we got at the beginning and installs it 
+
+> Note: The file is not modified on-the-fly but its lines are assigned into an array and modified there, it then checks if the script modified any line and overwrites the whole file
