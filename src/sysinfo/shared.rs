@@ -102,7 +102,7 @@ pub fn get_kernel_version() -> String {
     System::kernel_version().unwrap_or_else(|| String::from("Unknown"))
 }
 
-/// Gets cpu name on any given system
+/// Gets cpu name on any given system, filters out any comments such as x-core processor
 pub fn get_cpu_name(sys: &System) -> String {
     sys.cpus()
         .first()
@@ -122,12 +122,12 @@ pub fn get_cpu_name(sys: &System) -> String {
 
             // looks for "-Core" pattern like "6-Core Processor"
             if let Some(pos) = full_name.find("-Core")
-                && let Some(space_pos) = full_name[.. pos].rfind(' ')
+                && let Some(space_pos) = full_name[..pos].rfind(' ')
             {
                 end_pos = end_pos.min(space_pos);
             }
 
-            full_name[.. end_pos].trim().to_string()
+            full_name[..end_pos].trim().to_string()
         })
         .unwrap_or_else(|| String::from("Unknown CPU"))
 }
@@ -137,6 +137,7 @@ pub fn get_cpu_frequency(sys: &System) -> u64 {
     sys.cpus().first().map(|cpu| cpu.frequency()).unwrap_or_else(|| 0)
 }
 
+/// Gets the lines logos in a vector and returns them
 pub fn get_logo_lines(distro_id: &str) -> Vec<String> {
     // TODO: This should be a path.join but fs::read_to_string hates Pathbuf
     let ascii_art_path = format!("ascii/{}.txt", distro_id);
@@ -147,6 +148,7 @@ pub fn get_logo_lines(distro_id: &str) -> Vec<String> {
         .unwrap_or_default()
 }
 
+/// Gets the GPU name and filters comments
 pub fn get_gpu_info() -> Option<String> {
     let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor::default());
 
@@ -164,7 +166,7 @@ pub fn get_gpu_info() -> Option<String> {
             end_pos = end_pos.min(parentheses_pos);
         }
 
-        return Some((gpu_name[.. end_pos]).to_string());
+        return Some((gpu_name[..end_pos]).to_string());
     }
 
     None

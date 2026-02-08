@@ -1,4 +1,5 @@
 use crate::sysinfo::*;
+use colored::*;
 
 // This will never run as it is called only if the program is compiled for linux
 // but it makes the compiler shut up
