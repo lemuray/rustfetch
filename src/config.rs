@@ -116,6 +116,15 @@ power_draw = false
     .to_string()
 }
 
+/// Gets the default config path for rustfetch. The default path is ~/.config/rustfetch/config.toml
+/// or ./rustfetch.toml as fallback
+pub fn get_default_path() -> PathBuf {
+    dirs::config_dir()
+        .map(|p| p.join("rustfetch/config.toml"))
+        .unwrap_or_else(|| PathBuf::from("rustfetch.toml")) // fallback = current directory
+}
+
+/// Creates the config file with default options and comments
 fn create_config_file(config_path: &PathBuf) -> Config {
     let default_config = Config::default();
 
@@ -137,9 +146,7 @@ fn create_config_file(config_path: &PathBuf) -> Config {
 }
 
 pub fn load_config(cli: &Cli) -> Config {
-    let config_path = dirs::config_dir()
-        .map(|p| p.join("rustfetch/config.toml")) // Add file path
-        .unwrap_or_else(|| PathBuf::from("rustfetch.toml")); // Fallback = current directory
+    let config_path = cli.config_file.clone().unwrap_or_else(get_default_path);
 
     if cli.reset_config {
         return create_config_file(&config_path);
