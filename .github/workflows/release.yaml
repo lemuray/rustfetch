@@ -10,8 +10,6 @@ jobs:
     strategy:
       matrix:
         include:
-          # Since compiling for different OSes can result in undetermined results,
-          # we're compiling it using github actions on ubuntu and macos
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             artifact_name: rustfetch
@@ -22,7 +20,7 @@ jobs:
             artifact_name: rustfetch
             asset_name: rustfetch-aarch64-unknown-linux-gnu.tar.gz
 
-          - os: macos-latest
+          - os: macos-13
             target: x86_64-apple-darwin
             artifact_name: rustfetch
             asset_name: rustfetch-x86_64-apple-darwin.tar.gz
@@ -48,6 +46,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - name: Configure linker for ARM cross-compilation
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          mkdir -p .cargo
+          cat > .cargo/config.toml << EOF
+          [target.aarch64-unknown-linux-gnu]
+          linker = "aarch64-linux-gnu-gcc"
+          EOF
 
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
