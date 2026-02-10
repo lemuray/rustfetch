@@ -80,9 +80,17 @@ pub fn get_directory_usage(directory: &str) -> (u64, u64, u64) {
         },
     };
 
-    // Cast these to u64 for closs platform compatibility
-    // FIXME: shows absurd numbers on MacOS for some reason
-    let block_size = stats.block_size() as u64;
+    // Cast these to u64 for cross platform compatibility
+    let fragment_size = stats.fragment_size() as u64;
+
+    // MacOS uses fragments, so this will show the correct numbers
+    let block_size = if fragment_size > 0 {
+        fragment_size
+    } else {
+        // In case fragment.size fails, fallback to block_size
+        // (Shows incorrect numbers on MacOS but fine on Linux)
+        stats.block_size() as u64
+    };
     let total = stats.blocks() as u64 * block_size;
     let free = stats.blocks_available() as u64 * block_size;
     let used = total - free;
