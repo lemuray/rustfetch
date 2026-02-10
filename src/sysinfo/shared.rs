@@ -1,5 +1,3 @@
-use std::fs;
-
 use nix::sys::statvfs::*;
 use sysinfo::*;
 
@@ -147,13 +145,27 @@ pub fn get_cpu_frequency(sys: &System) -> u64 {
 
 /// Gets the lines logos in a vector and returns them
 pub fn get_logo_lines(distro_id: &str) -> Vec<String> {
-    // TODO: This should be a path.join but fs::read_to_string hates Pathbuf
-    let ascii_art_path = format!("ascii/{}.txt", distro_id);
+    // include_str!() works even in compiled binaries
+    let logo = match distro_id {
+        "arch" => include_str!("../../ascii/arch.txt"),
+        "ubuntu" => include_str!("../../ascii/ubuntu.txt"),
+        "fedora" => include_str!("../../ascii/fedora.txt"),
+        "manjaro" => include_str!("../../ascii/manjaro.txt"),
+        "debian" => include_str!("../../ascii/debian.txt"),
+        "opensuse" => include_str!("../../ascii/opensuse.txt"),
+        "alpine" => include_str!("../../ascii/alpine.txt"),
+        "gentoo" => include_str!("../../ascii/gentoo.txt"),
+        "endeavouros" => include_str!("../../ascii/endeavouros.txt"),
+        "popos" => include_str!("../../ascii/popos.txt"),
+        "cachyos" => include_str!("../../ascii/cachyos.txt"),
+        "garuda" => include_str!("../../ascii/garuda.txt"),
+        "linuxmint" => include_str!("../../ascii/linuxmint.txt"),
+        "kali" => include_str!("../../ascii/kali.txt"),
+        "macos" => include_str!("../../ascii/macos.txt"),
+        _ => "",
+    };
 
-    fs::read_to_string(&ascii_art_path)
-        .ok()
-        .map(|content| content.lines().map(|l| l.to_string()).collect())
-        .unwrap_or_default()
+    logo.lines().map(|l| l.to_string()).collect()
 }
 
 /// Gets the GPU name and filters comments
