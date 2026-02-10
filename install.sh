@@ -41,8 +41,16 @@ prompt_yes_no() {
   local prompt="$1"
   local reply
 
+  # read from /dev/tty so prompts work even when the script is piped.
+  # in case it is not available default to no not to silently modify
+  # shell config files
+  if [[ ! -t 0 ]] && [[ ! -e /dev/tty ]]; then
+    echo "${prompt} [Y/n] (non-interactive, defaulting to no)"
+    return 1
+  fi
+
   while true; do
-    read -r -p "${prompt} [Y/n] " reply
+    read -r -p "${prompt} [Y/n] " reply < /dev/tty
     reply="$(printf '%s' "${reply}" | tr '[:upper:]' '[:lower:]')"
     case "${reply}" in
       ""|y|yes) return 0 ;;
@@ -86,6 +94,7 @@ is_standalone_fetch_line() {
 
 update_shell_config() {
   local config_file="$1"
+  local install_dir="$2"
 
   if [[ -z "${config_file}" || ! -f "${config_file}" ]]; then
     echo "Skipping shell integration (no config file found)."
@@ -109,7 +118,22 @@ update_shell_config() {
 
   local found=0
   local changed=0
+  local needs_path=0
   local idx cmd
+
+  # check if the install directory is already on PATH in the config file
+  if [[ "${install_dir}" == "${HOME}/.local/bin" ]]; then
+    local path_already_set=0
+    for idx in "${!lines[@]}"; do
+      if [[ "${lines[$idx]}" == *".local/bin"* ]] && [[ "${lines[$idx]}" == *"PATH"* ]]; then
+        path_already_set=1
+        break
+      fi
+    done
+    if [[ "${path_already_set}" -eq 0 ]]; then
+      needs_path=1
+    fi
+  fi
 
   # scan each line for standalone fetch commands, prompt at each match
   for idx in "${!lines[@]}"; do
@@ -123,6 +147,7 @@ update_shell_config() {
           indent="${line%%[!$' \t']*}"
           lines[$idx]="${indent}rustfetch"
           changed=1
+          echo "Replaced ${cmd} with rustfetch at line $((idx + 1)) in ${config_file}."
         else
           echo "Skipping shell integration in ${config_file}."
         fi
@@ -136,9 +161,18 @@ update_shell_config() {
     if prompt_yes_no "No other fetching tool was found in ${config_file}, would you like rustfetch to run automatically when opening a terminal?"; then
       lines+=("rustfetch")
       changed=1
+      echo "Added rustfetch to ${config_file}."
     else
       echo "Skipping shell integration in ${config_file}."
     fi
+  fi
+
+  # if we're going to write rustfetch into the config, ensure PATH includes
+  # the install directory so the shell can actually find the binary
+  if [[ "${changed}" -eq 1 ]] && [[ "${needs_path}" -eq 1 ]]; then
+    # prepend the PATH export before everything else so rustfetch is found
+    lines=("export PATH=\"\$HOME/.local/bin:\$PATH\"" "${lines[@]}")
+    echo "Added ~/.local/bin to PATH in ${config_file}."
   fi
 
   # only rewrite the file if we changed anything
@@ -152,7 +186,7 @@ update_shell_config() {
 
 ASSET="${BINARY_NAME}-${ARCH}-${OS}.tar.gz"
 
-# Fetch latest release
+# fetch latest release
 LATEST_TAG="$(curl -fsSL "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest" | \
   grep -E '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')"
 
@@ -167,7 +201,7 @@ curl -fsSL "https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${LA
 
 tar -xzf "${TMP_DIR}/${ASSET}" -C "${TMP_DIR}"
 
-# Install to /usr/local/bin (or fallback to ~/.local/bin)
+# fnstall to /usr/local/bin (fallback: ~/.local/bin)
 INSTALL_DIR="/usr/local/bin"
 if [[ ! -w "${INSTALL_DIR}" ]]; then
   INSTALL_DIR="${HOME}/.local/bin"
@@ -179,9 +213,9 @@ install -m 0755 "${TMP_DIR}/${BINARY_NAME}" "${INSTALL_DIR}/${BINARY_NAME}"
 echo "Installed ${BINARY_NAME} to ${INSTALL_DIR}"
 echo "Run: ${BINARY_NAME} --help"
 
-# Optional shell integration to replace or add rustfetch on terminal start.
+# optional shell integration to replace or add rustfetch on terminal start
 if CONFIG_FILE="$(detect_shell_config)"; then
-  update_shell_config "${CONFIG_FILE}"
+  update_shell_config "${CONFIG_FILE}" "${INSTALL_DIR}"
 else
   echo "Skipping shell integration (unsupported shell)."
 fi
