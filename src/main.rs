@@ -8,7 +8,6 @@ use std::io::Write;
 
 use clap::Parser;
 use cli::Cli;
-use colored::*;
 use config::load_config;
 
 use crate::{config::load_all_config, platform::colorize_logo_line};
@@ -61,19 +60,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         for i in 0..max_lines {
             if i < logo_lines.len() {
                 write!(stdout, "{}", colorize_logo_line(&distro_id, &logo_lines[i]))?;
-                // TODO: Add a command line argument to increase padding (padding += cli.arg)
                 let padding =
                     logo_column_width.saturating_sub(logo_lines[i].len()) + cli.padding as usize;
                 write!(stdout, "{:width$}", "", width = padding)?;
             } else {
-                let padding = logo_column_width
-                    .saturating_sub(logo_lines[logo_lines.len() - 1].len())
-                    + cli.padding as usize;
-                write!(stdout, "{:width$}", "", width = (logo_column_width + padding))?;
+                // when past logo lines, print spaces that are logo_column_width + padding
+                let total_width = logo_column_width + cli.padding as usize;
+                write!(stdout, "{:width$}", "", width = total_width)?;
             }
 
             if i < info_lines.len() {
-                writeln!(stdout, "  {}", info_lines[i].white())?;
+                writeln!(stdout, "  {}", info_lines[i])?;
             } else {
                 writeln!(stdout)?;
             }
