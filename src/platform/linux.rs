@@ -53,6 +53,7 @@ pub fn format_kernel_version() -> String {
 /// the distro id, we get return its colorized version.
 /// Example: if distro_id = ubuntu, then we return line.orange()
 pub fn colorize_logo_line(distro_id: &str, line: &str) -> ColoredString {
+    // FIXME: This should be in display.rs, i don't know that i was on when i put this here
     match distro_id {
         // The exact colors should be tested on your distro and eventually changed it they do not
         // match the color of the distro's logo excessively
@@ -67,7 +68,9 @@ pub fn colorize_logo_line(distro_id: &str, line: &str) -> ColoredString {
         "linuxmint" | "manjaro" => line.green(),
         "debian" => line.red(),
         "alpine" => line.cyan(),
-        // if the id is in this list default to white
+        "popos" => line.truecolor(72, 149, 239),
+        "opensuse" => line.truecolor(115, 186, 37),
+        // if the id is not in this list default to white
         _ => line.white(),
     }
 }

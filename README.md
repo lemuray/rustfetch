@@ -3,8 +3,24 @@
 
 Rustfetch is a CLI tool designed to **fetch system information** in the **fastest** and **safest** way possible while still keeping it visually appealing, inspired by [neofetch](https://github.com/dylanaraps/neofetch) and [fastfetch](https://github.com/fastfetch-cli/fastfetch).
 
-![arch_0.2](docs/images/arch_0.2.avif)
-<!-- Other images should be added here, such as ubuntu or macos with different configs -->
+<table cellpadding="0" cellspacing="0">
+	<tr>
+		<td width="45%" align="left">
+			<img src="docs/images/arch_0.2.avif" width="100%">
+		</td>
+		<td width="10%" align="center">&nbsp;</td>
+		<td width="45%" align="right">
+			<img src="docs/images/ubuntu_0.2.avif" width="100%">
+		</td>
+	</tr>
+	<tr>
+		<td colspan="3" align="center">
+			<img src="docs/images/macos_0.2.avif" width="50%">
+		</td>
+	</tr>
+</table>
+
+<sub>Tested on: macOS (Apple Silicon), Ubuntu 22.04 LTS, Arch Linux (x86_64). rustc 1.93.0</sub>
 
 ## Installation
 You can **copy and paste** this command to use the install script:
