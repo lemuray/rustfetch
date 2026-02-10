@@ -23,9 +23,7 @@ curl -fsSL https://raw.githubusercontent.com/lemuray/rustfetch/main/install.sh |
 
 Alternatively, you can build it from source:
 ```bash
-git clone https://github.com/lemuray/rustfetch.git
-cd rustfetch
-cargo install --path .
+cargo install --git https://github.com/lemuray/rustfetch.git
 ```
 
 **In case installation fails** or you want to know more about the installation process, visit our [guide to installation](docs/guide_to_installatin.md).

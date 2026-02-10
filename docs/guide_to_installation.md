@@ -21,9 +21,7 @@ You can also build rustfetch directly from source:
 > Note: in order to build the code from source, you have to have [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) installed
 
 ```bash
-git clone https://github.com/lemuray/rustfetch.git
-cd rustfetch
-cargo install --path .
+cargo install --git https://github.com/lemuray/rustfetch.git
 ```
 
 ## Manual installation
