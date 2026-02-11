@@ -1,16 +1,11 @@
 //! Main file for the configuration setup
 //! To regenerate the config file and test new setups just run
-//! rm "YOUR_OS_FILE_PATH" if on unix-like system
+//! cargo run -- --reset-config
 
+use serde::{Deserialize, Serialize}; // This transforms toml files into structs and viceversa
 use std::path::PathBuf;
 
-use serde::{Deserialize, Serialize};
-
-use crate::cli::Cli; // This transforms toml files into structs and viceversa
-
-trait All {
-    fn set_all() -> Self;
-}
+use crate::cli::Cli;
 
 #[derive(Debug, Deserialize, Serialize, Default)]
 pub struct Config {
@@ -48,25 +43,6 @@ impl Default for DisplayConfig {
             disk: true,
             battery: true,
             power_draw: false,
-        }
-    }
-}
-
-impl All for DisplayConfig {
-    /// Set all values to true
-    fn set_all() -> Self {
-        Self {
-            os: true,
-            kernel: true,
-            uptime: true,
-            cpu: true,
-            cpu_frequency: true,
-            gpu: true,
-            ram: true,
-            swap: true,
-            disk: true,
-            battery: true,
-            power_draw: true,
         }
     }
 }
@@ -146,7 +122,7 @@ fn create_config_file(config_path: &PathBuf) -> Config {
 }
 
 pub fn load_config(cli: &Cli) -> Config {
-    let config_path = cli.config_file.clone().unwrap_or_else(get_default_path);
+    let config_path = cli.config_file.as_ref().cloned().unwrap_or_else(get_default_path);
 
     if cli.reset_config {
         return create_config_file(&config_path);
@@ -166,6 +142,18 @@ pub fn load_config(cli: &Cli) -> Config {
 
 pub fn load_all_config() -> Config {
     Config {
-        display: DisplayConfig::set_all(),
+        display: DisplayConfig {
+            os: true,
+            kernel: true,
+            uptime: true,
+            cpu: true,
+            cpu_frequency: true,
+            gpu: true,
+            ram: true,
+            swap: true,
+            disk: true,
+            battery: true,
+            power_draw: true,
+        },
     }
 }

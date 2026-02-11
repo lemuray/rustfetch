@@ -4,7 +4,7 @@ pub mod config;
 pub mod platform;
 pub mod sysinfo;
 
-use std::io::Write;
+use std::io::{BufWriter, Write};
 
 use clap::Parser;
 use cli::Cli;
@@ -45,12 +45,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .flatten()
     .collect();
 
-    let mut stdout = std::io::stdout();
+    let stdout = std::io::stdout();
+    let mut handle = BufWriter::new(stdout.lock());
 
     if logo_lines.is_empty() {
         // If the logo does not match any inside ../ascii/LOGO.txt, just print the info
         for line in info_lines {
-            let _ = writeln!(stdout, "{}", line);
+            let _ = writeln!(handle, "{}", line);
         }
     } else {
         let max_lines = logo_lines.len().max(info_lines.len());
@@ -59,24 +60,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         for i in 0..max_lines {
             if i < logo_lines.len() {
-                write!(stdout, "{}", colorize_logo_line(&distro_id, &logo_lines[i]))?;
+                write!(handle, "{}", colorize_logo_line(&distro_id, &logo_lines[i]))?;
                 let padding =
                     logo_column_width.saturating_sub(logo_lines[i].len()) + cli.padding as usize;
-                write!(stdout, "{:width$}", "", width = padding)?;
+                write!(handle, "{:width$}", "", width = padding)?;
             } else {
                 // when past logo lines, print spaces that are logo_column_width + padding
                 let total_width = logo_column_width + cli.padding as usize;
-                write!(stdout, "{:width$}", "", width = total_width)?;
+                write!(handle, "{:width$}", "", width = total_width)?;
             }
 
             if i < info_lines.len() {
-                writeln!(stdout, "  {}", info_lines[i])?;
+                writeln!(handle, "  {}", info_lines[i])?;
             } else {
-                writeln!(stdout)?;
+                writeln!(handle)?;
             }
         }
     }
 
-    stdout.flush()?;
+    handle.flush()?;
     Ok(())
 }
