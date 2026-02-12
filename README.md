@@ -26,7 +26,7 @@ Alternatively, you can build it from source:
 cargo install --git https://github.com/lemuray/rustfetch.git
 ```
 
-**In case installation fails** or you want to know more about the installation process, visit our [guide to installation](docs/guide_to_installatin.md).
+**In case installation fails** or you want to know more about the installation process, visit our [guide to installation](docs/guide_to_installation.md).
 
 ## Usage
 **You can run the CLI with the default config by typing ```rustfetch```**
