@@ -1,3 +1,4 @@
+use display_info::DisplayInfo;
 use nix::sys::statvfs::*;
 use sysinfo::*;
 
@@ -190,4 +191,19 @@ pub fn get_gpu_info() -> Option<String> {
     }
 
     None
+}
+
+/// Gets the screen resolution and returns it as (width, height)
+pub fn get_screen_resolution() -> Option<(u64, u64)> {
+    let displays = DisplayInfo::all().ok()?;
+    let display = displays.first()?;
+    Some((display.width as u64, display.height as u64))
+}
+
+pub fn get_screen_refresh_rate() -> Option<u64> {
+    // repeated variable between this and get_screen_resolution, we can pass a reference if display is true later on
+    let displays = DisplayInfo::all().ok()?;
+    let display = displays.first()?;
+
+    (display.frequency > 0.0).then_some(display.frequency as u64)
 }

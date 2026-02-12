@@ -11,6 +11,7 @@ path = "src/main.rs"
 clap = { version = "4.5.56", features = ["derive"] }
 colored = "3.1.1"
 dirs = "6.0.0"
+display-info = "0.5.7"
 nix = { version = "0.30.1", features = ["fs"] }
 pollster = "0.4.0"
 serde = { version = "1.0.228", features = ["derive"] }

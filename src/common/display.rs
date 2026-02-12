@@ -113,3 +113,30 @@ pub fn display_disk_usage() -> String {
 pub fn display_gpu_info() -> Option<String> {
     get_gpu_info().map(|gpu_info| format!("{} {}", "GPU:".bold(), gpu_info))
 }
+
+pub fn display_screen(config: &Config) -> Option<String> {
+    if !config.display.resolution && !config.display.refresh_rate {
+        // I'm sure theres a better way to do this, but this works as well
+        return None;
+    }
+
+    let resolution;
+    if config.display.resolution
+        && let Some((width, height)) = get_screen_resolution()
+    {
+        resolution = format!("{}x{}", width, height);
+    } else {
+        resolution = String::from("");
+    }
+
+    let refresh_rate;
+    if config.display.refresh_rate
+        && let Some(rr) = get_screen_refresh_rate()
+    {
+        refresh_rate = format!("@ {}Hz", rr);
+    } else {
+        refresh_rate = String::from("");
+    }
+
+    Some(format!("{} {} {}", "Screen:".bold(), resolution, refresh_rate))
+}

@@ -21,6 +21,9 @@ pub struct DisplayConfig {
     pub cpu: bool,
     pub cpu_frequency: bool,
     pub gpu: bool,
+    pub screen: bool,
+    pub resolution: bool,
+    pub refresh_rate: bool,
     pub ram: bool,
     pub swap: bool,
     pub disk: bool,
@@ -38,6 +41,9 @@ impl Default for DisplayConfig {
             cpu: true,
             cpu_frequency: false,
             gpu: true,
+            screen: true,
+            resolution: true,
+            refresh_rate: true,
             ram: true,
             swap: true,
             disk: true,
@@ -64,9 +70,12 @@ uptime = true
 cpu = true
     cpu_frequency = false
 
-# GPU INFO
+# GRAPHICS INFO
 # --------
 gpu = true
+screen = true
+    resolution = true
+    refresh_rate: true
 
 # MEMORY INFO
 # -----------
@@ -149,6 +158,9 @@ pub fn load_all_config() -> Config {
             cpu: true,
             cpu_frequency: true,
             gpu: true,
+            screen: true,
+            resolution: true,
+            refresh_rate: true,
             ram: true,
             swap: true,
             disk: true,
