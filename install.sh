@@ -37,6 +37,62 @@ detect_shell_config() {
   esac
 }
 
+detect_shell_name() {
+  basename "${SHELL:-}"
+}
+
+ensure_install_dir_on_path() {
+  local config_file="$1"
+  local shell_name="$2"
+  local install_dir="$3"
+
+  # only needed for user-local installs
+  if [[ "${install_dir}" != "${HOME}/.local/bin" ]]; then
+    return
+  fi
+
+  if [[ -z "${config_file}" ]]; then
+    echo "Skipping PATH update (no shell config file found)."
+    return
+  fi
+
+  mkdir -p "$(dirname "${config_file}")"
+  touch "${config_file}"
+
+  if [[ ! -w "${config_file}" ]]; then
+    echo "Skipping PATH update (config file not writable): ${config_file}"
+    return
+  fi
+
+  local path_line
+  case "${shell_name}" in
+    fish) path_line='fish_add_path -m "$HOME/.local/bin"' ;;
+    *) path_line='export PATH="$HOME/.local/bin:$PATH"' ;;
+  esac
+
+  local line
+  while IFS= read -r line || [[ -n "${line}" ]]; do
+    if [[ "${line}" == "${path_line}" ]]; then
+      return
+    fi
+
+    # broader check to avoid adding duplicates when a different but valid PATH
+    # expression already includes ~/.local/bin
+    if [[ "${shell_name}" == "fish" ]]; then
+      if [[ "${line}" == *".local/bin"* ]] && [[ "${line}" == *"fish_add_path"* || "${line}" == *"set"*"PATH"* ]]; then
+        return
+      fi
+    else
+      if [[ "${line}" == *".local/bin"* ]] && [[ "${line}" == *"PATH"* ]]; then
+        return
+      fi
+    fi
+  done < "${config_file}"
+
+  printf '\n%s\n' "${path_line}" >> "${config_file}"
+  echo "Added ~/.local/bin to PATH in ${config_file}."
+}
+
 prompt_yes_no() {
   local prompt="$1"
   local reply
@@ -94,7 +150,6 @@ is_standalone_fetch_line() {
 
 update_shell_config() {
   local config_file="$1"
-  local install_dir="$2"
 
   if [[ -z "${config_file}" || ! -f "${config_file}" ]]; then
     echo "Skipping shell integration (no config file found)."
@@ -118,22 +173,7 @@ update_shell_config() {
 
   local found=0
   local changed=0
-  local needs_path=0
   local idx cmd
-
-  # check if the install directory is already on PATH in the config file
-  if [[ "${install_dir}" == "${HOME}/.local/bin" ]]; then
-    local path_already_set=0
-    for idx in "${!lines[@]}"; do
-      if [[ "${lines[$idx]}" == *".local/bin"* ]] && [[ "${lines[$idx]}" == *"PATH"* ]]; then
-        path_already_set=1
-        break
-      fi
-    done
-    if [[ "${path_already_set}" -eq 0 ]]; then
-      needs_path=1
-    fi
-  fi
 
   # scan each line for standalone fetch commands, prompt at each match
   for idx in "${!lines[@]}"; do
@@ -165,14 +205,6 @@ update_shell_config() {
     else
       echo "Skipping shell integration in ${config_file}."
     fi
-  fi
-
-  # if we're going to write rustfetch into the config, ensure PATH includes
-  # the install directory so the shell can actually find the binary
-  if [[ "${changed}" -eq 1 ]] && [[ "${needs_path}" -eq 1 ]]; then
-    # prepend the PATH export before everything else so rustfetch is found
-    lines=("export PATH=\"\$HOME/.local/bin:\$PATH\"" "${lines[@]}")
-    echo "Added ~/.local/bin to PATH in ${config_file}."
   fi
 
   # only rewrite the file if we changed anything
@@ -215,7 +247,13 @@ echo "Run: ${BINARY_NAME} --help"
 
 # optional shell integration to replace or add rustfetch on terminal start
 if CONFIG_FILE="$(detect_shell_config)"; then
-  update_shell_config "${CONFIG_FILE}" "${INSTALL_DIR}"
+  SHELL_NAME="$(detect_shell_name)"
+  ensure_install_dir_on_path "${CONFIG_FILE}" "${SHELL_NAME}" "${INSTALL_DIR}"
+  update_shell_config "${CONFIG_FILE}"
 else
+  if [[ "${INSTALL_DIR}" == "${HOME}/.local/bin" ]]; then
+    echo "Installed to ~/.local/bin; add this to your shell config if needed:"
+    echo '  export PATH="$HOME/.local/bin:$PATH"'
+  fi
   echo "Skipping shell integration (unsupported shell)."
 fi
