@@ -163,6 +163,9 @@ pub fn get_logo_lines(distro_id: &str) -> Vec<String> {
         "linuxmint" => include_str!("../../ascii/linuxmint.txt"),
         "kali" => include_str!("../../ascii/kali.txt"),
         "macos" => include_str!("../../ascii/macos.txt"),
+        "zorin" => include_str!("../../ascii/zorin.txt"),
+        "elementary" => include_str!("../../ascii/elementary.txt"),
+        "nixos" => include_str!("../../ascii/nixos.txt"),
         _ => "",
     };
 
