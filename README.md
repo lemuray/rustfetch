@@ -9,9 +9,6 @@ Rustfetch is a CLI tool designed to **fetch system information** in the **fastes
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<img src="docs/images/ubuntu_0.2.avif" width="42%">
 </p>
-<p align="center">
-	<img src="docs/images/macos_0.2.avif" width="50%">
-</p>
 
 <p align="center">
 	<img src="docs/images/execution_time.png">
