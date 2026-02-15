@@ -11,8 +11,9 @@ This project has gone through countless iterations and it is always changing, fa
 - First official stable version, therefore it must handle every error correctly and predictably ( <code style="color:red">Critical</code> )
 - Support for bigger logos (i.e: enough information to fit a bigger logo without it seeming overkill) ( <code style="color : orange">Important</code> )
 - Bulletproof installation script, add logs while installing as well for a more informative installation ( <code style="color : orange">Important</code> )
+- Runtime comparable to fastfetch's ( <code style="color : orange">Important</code> )
 - Support for Redox OS ( <code style="color : green">Minor</code> )
-- Concrete speed comparisons (and tests) with neofetch and fastfetch to place in the main README ( <code style="color : green">Minor</code> )
+- ~~Concrete speed comparisons (and tests) with neofetch and fastfetch to place in the main README ( <code style="color : green">Minor</code> )~~
 
 ## Version 0.3.0
 - Add fallback logo in case the logo is not available. Such as linux.txt or check secondary ID for derivate distros (Artix, Kubuntu exc) ( <code style="color : orange">Important</code> )
