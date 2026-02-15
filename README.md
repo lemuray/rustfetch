@@ -1,5 +1,5 @@
 # Rustfetch
-![Top Language](https://img.shields.io/github/languages/top/lemuray/rustfetch)
+![Top Language](https://img.shields.io/github/languages/top/lemuray/rustfetch?logo=rust&label=)
 
 Rustfetch is a CLI tool designed to **fetch system information** in the **fastest** and **safest** way possible while still keeping it visually appealing, inspired by [neofetch](https://github.com/dylanaraps/neofetch) and [fastfetch](https://github.com/fastfetch-cli/fastfetch).
 
