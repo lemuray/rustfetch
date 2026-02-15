@@ -148,7 +148,7 @@ pub fn display_identifier() -> Vec<String> {
     }
     let username = get_username();
 
-    let mut identifier = format!("{}@{}", host_name, username);
+    let mut identifier = format!("{}@{}", username, host_name);
     let underline = "-".repeat(identifier.chars().count());
 
     // this may add overhead and i will try to find a better way,

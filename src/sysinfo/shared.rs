@@ -1,5 +1,4 @@
 use display_info::DisplayInfo;
-use nix::sys::statvfs::*;
 use sysinfo::*;
 
 use crate::{common::*, config::Config};
@@ -68,31 +67,20 @@ pub fn get_uptime() -> String {
 
 /// Gets disk (root) usage and returns in GB and percentage (floored)
 pub fn get_directory_usage(directory: &str) -> (u64, u64, u64) {
-    let stats = match statvfs(directory) {
-        Ok(stats) => stats,
-        Err(e) => {
-            eprintln!(
-                "Unable to get directory usage for '{}', defaulting to 0: \n{}",
-                directory, e
-            );
-            return (0, 0, 0); // Return zeros if unable to get disk stats
-        },
+    let disks = Disks::new_with_refreshed_list();
+
+    let disk = match disks
+        .iter()
+        .find(|disk| disk.mount_point().to_string_lossy() == directory)
+        .or_else(|| disks.iter().find(|disk| disk.mount_point() == std::path::Path::new("/")))
+    {
+        Some(disk) => disk,
+        _ => return (0, 0, 0),
     };
 
-    // Cast these to u64 for cross platform compatibility
-    let fragment_size = stats.fragment_size() as u64;
-
-    // MacOS uses fragments, so this will show the correct numbers
-    let block_size = if fragment_size > 0 {
-        fragment_size
-    } else {
-        // In case fragment.size fails, fallback to block_size
-        // (Shows incorrect numbers on MacOS but fine on Linux)
-        stats.block_size() as u64
-    };
-    let total = stats.blocks() as u64 * block_size;
-    let free = stats.blocks_available() as u64 * block_size;
-    let used = total - free;
+    let total = disk.total_space();
+    let free = disk.available_space();
+    let used = total.saturating_sub(free);
 
     let percentage = get_percentage_from_part(used as f64, total as f64).unwrap_or(0);
 

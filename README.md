@@ -13,7 +13,12 @@ Rustfetch is a CLI tool designed to **fetch system information** in the **fastes
 	<img src="docs/images/macos_0.2.avif" width="50%">
 </p>
 
-<sub>Tested on: macOS (Apple Silicon), Ubuntu 22.04 LTS, Arch Linux (x86_64). rustc 1.93.0</sub>
+<p align="center">
+<figure>
+	<img src="docs/images/execution_time.png">
+	<figcaption><sub>Tests run on identical hardware, using the <a href="docs/architecture.md/#runtimesh">runtime script</a>.</sub></figcaption>
+</figure>
+</p>
 
 ## Installation
 You can **copy and paste** this command to use the install script:
@@ -27,6 +32,8 @@ cargo install --git https://github.com/lemuray/rustfetch.git
 ```
 
 **In case installation fails** or you want to know more about the installation process, visit our [guide to installation](docs/guide_to_installation.md).
+
+<sub>Tested on: macOS (Apple Silicon), Ubuntu 22.04 LTS, Arch Linux (x86_64). rustc 1.93.0</sub>
 
 ## Usage
 **You can run the CLI with the default config by typing ```rustfetch```**

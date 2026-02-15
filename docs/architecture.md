@@ -23,6 +23,8 @@ src/
     └── <a href="#sharedrs">shared.rs</a>   # Generic sysinfo functions
 tests/              # Tests for "cargo test"
 └── <a href="#utils_testsrs">utils_tests.rs</a>  # Tests specific to utils
+scripts/
+└── <a href="runtimesh">runtime.sh</a>      # Measure program's runtime
 
 <a href="#installsh">install.sh</a>          # Bash installation script
 </pre>
@@ -93,3 +95,14 @@ Bash automated installation script for the program that can work through curl, i
 - **Fetches the latest version** from the normalized names we got at the beginning and installs it 
 
 > Note: The file is not modified on-the-fly but its lines are assigned into an array and modified there, it then checks if the script modified any line and overwrites the whole file
+
+## runtime.sh
+Bash script that automatically calculates the minimum, average and maximum runtime in milliseconds of any given command. It is used as follows:
+```bash
+scripts/runtime.sh [--runs N] [--warmup N] -- <command> [args...]
+```
+This script is mostly used to assess runtime differences with new commits. This commands are used to reliably get rustfetch's runtime speed after new features, as well as the comparison with neofetch inside the <a href="../README.md">README</a>:
+```bash
+cargo build --release
+scripts/runtime.sh --runs 30 --warmup 5 -- ./target/release/rustfetch
+```
