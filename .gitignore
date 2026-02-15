@@ -3,3 +3,6 @@
 # IDEs and Code Editors
 /.idea
 /.vscode
+
+# Personal files to keep track of stuff
+*.personal.md

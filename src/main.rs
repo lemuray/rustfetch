@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 config.display.os.then(common::display_os),
                 config.display.kernel.then(common::display_kernel),
                 config.display.cpu.then(|| common::display_cpu(&sys, &config)),
-                config.display.gpu.then(common::display_gpu_info).flatten(),
+                config.display.gpu.then(common::display_gpu_name).flatten(),
                 config.display.screen.then(|| common::display_screen(&config)).flatten(),
                 config.display.ram.then(|| common::display_ram_usage(&sys)),
                 config.display.swap.then(|| common::display_swap_usage(&sys)),
@@ -67,7 +67,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // We get the maximum length from the logo using .max()
         let logo_column_width = logo_lines.iter().map(|l| l.len()).max().unwrap_or(0);
 
-        for i in 0..max_lines {
+        for i in 0 .. max_lines {
             if i < logo_lines.len() {
                 write!(handle, "{}", colorize_logo_line(&distro_id, &logo_lines[i]))?;
                 let padding =

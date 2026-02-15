@@ -11,7 +11,7 @@ use crate::{
 fn color_percentage(percentage: u64) -> ColoredString {
     if percentage < 40 {
         format!("{}%", percentage).green()
-    } else if (40..80).contains(&percentage) {
+    } else if (40 .. 80).contains(&percentage) {
         format!("{}%", percentage).yellow()
     } else {
         format!("{}%", percentage).red()
@@ -21,7 +21,7 @@ fn color_percentage(percentage: u64) -> ColoredString {
 fn color_percentage_inverse(percentage: f64) -> ColoredString {
     if percentage < 30.0 {
         format!("{}%", percentage).red()
-    } else if (30.0..70.0).contains(&percentage) {
+    } else if (30.0 .. 70.0).contains(&percentage) {
         format!("{}%", percentage).yellow()
     } else {
         format!("{}%", percentage).green()
@@ -110,8 +110,8 @@ pub fn display_disk_usage() -> String {
     )
 }
 
-pub fn display_gpu_info() -> Option<String> {
-    get_gpu_info().map(|gpu_info| format!("{} {}", "GPU:".bold(), gpu_info))
+pub fn display_gpu_name() -> Option<String> {
+    get_gpu_name().map(|gpu_name| format!("{} {}", "GPU:".bold(), gpu_name))
 }
 
 pub fn display_screen(config: &Config) -> Option<String> {

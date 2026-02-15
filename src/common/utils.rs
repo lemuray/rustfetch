@@ -75,3 +75,8 @@ pub fn extract_numeric_value(input: &str) -> Result<f64, String> {
         .ok_or_else(|| "No numeric value found in the input".to_string())
         .and_then(|num_str| num_str.parse::<f64>().map_err(|e| e.to_string()))
 }
+
+/// normalizes hex codes to remove the x, for example "0xf89" becomes "0f89"
+pub fn format_hex(id: &str) -> String {
+    id.trim_start_matches("0x").trim_start_matches("0X").to_ascii_lowercase()
+}
