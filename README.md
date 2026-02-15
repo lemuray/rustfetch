@@ -14,7 +14,7 @@ Rustfetch is a CLI tool designed to **fetch system information** in the **fastes
 	<img src="docs/images/execution_time.png">
 </p>
 <p align="center">
-	<sub>Tests run on identical hardware, using the <a href="docs/architecture.md/#runtimesh">runtime script</a>.</sub>
+	<sub>Tests ran on identical hardware with default configs, using the <a href="docs/architecture.md/#runtimesh">runtime script</a> (30 runs, 5 warmups).</sub>
 </p>
 
 ## Installation
