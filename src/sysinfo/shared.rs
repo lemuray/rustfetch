@@ -3,7 +3,7 @@ use std::path::*;
 use display_info::DisplayInfo;
 use sysinfo::*;
 
-use crate::{common::*, config::Config};
+use crate::{cache::get_cache, common::*, config::Config};
 
 const BYTES_TO_GB: u64 = 1_000_000_000;
 const KIB_TO_MB: u64 = 1024;
@@ -162,8 +162,34 @@ pub fn get_logo_lines(distro_id: &str) -> Vec<String> {
     logo.lines().map(|l| l.to_string()).collect()
 }
 
+/// Gets the pretty version of the GPU through wgpu, this function is really slow (~45ms), so its
+/// value is stored in the cache and only retrieved at first startup or if the system ids do not
+/// match the ones in the cache
+pub fn get_gpu_name_pretty() -> Option<String> {
+    let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor::default());
+
+    let adapters: Vec<wgpu::Adapter> =
+        pollster::block_on(instance.enumerate_adapters(wgpu::Backends::all()));
+
+    if let Some(adapter) = adapters.into_iter().next() {
+        let gpu_name = adapter.get_info().name;
+
+        // Some AMD and Intel GPUs will return their name as "GPU_NAME (Some unneded stuff)"
+        // For example "AMD Ryzen RX 580 Series (RADV POLARIS10)"
+        // Here we're just truncating the string to get those parentheses out
+        let mut end_pos = gpu_name.len();
+        if let Some(parentheses_pos) = gpu_name.find("(") {
+            end_pos = end_pos.min(parentheses_pos);
+        }
+
+        return Some((gpu_name[..end_pos]).to_string());
+    }
+
+    None
+}
+
 /// Gets gpu vendor and device ids and returns them as a tuple: (vendor, device)
-fn get_gpu_ids() -> Option<(String, String)> {
+pub fn get_gpu_ids() -> Option<(String, String)> {
     // On some systems the indexes might start at 1, so instead of iterating through every single
     // possible "card*" we try the first two which are the most likely
     let gpu_path = Path::new("/sys/class/drm/card0/device");
@@ -181,7 +207,7 @@ fn get_gpu_ids() -> Option<(String, String)> {
         .trim()
         .to_string();
 
-    Some((vendor, device))
+    Some((format_hex(&vendor), format_hex(&device)))
 }
 
 /// Gets subsystem IDs for the GPU, which are used to narrow down the possible names of the GPU
@@ -212,10 +238,15 @@ pub fn get_gpu_name() -> Option<String> {
     let (vendor_id, device_id) = get_gpu_ids()?;
     let subsystem_ids = get_gpu_subsystem_ids();
 
-    let vendor_id = format_hex(&vendor_id);
-    let device_id = format_hex(&device_id);
     let subsystem_ids = subsystem_ids
         .map(|(subvendor, subdevice)| (format_hex(&subvendor), format_hex(&subdevice)));
+
+    if let Ok(cache) = get_cache() {
+        // again, this shouldn't be collapsed
+        if cache.gpu_device_id == device_id && cache.gpu_vendor_id == vendor_id {
+            return Some(cache.gpu_name_pretty);
+        }
+    }
 
     let pci_ids = std::fs::read_to_string("/usr/share/hwdata/pci.ids")
         .or_else(|_| std::fs::read_to_string("/usr/share/misc/pci.ids"))

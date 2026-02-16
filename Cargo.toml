@@ -16,6 +16,7 @@ pollster = "0.4.0"
 serde = { version = "1.0.228", features = ["derive"] }
 sysinfo = "0.37.2"
 toml = "0.9.11"
+wgpu = "28.0.0"
 
 [lints.clippy]
 unwrap_used = "deny"
