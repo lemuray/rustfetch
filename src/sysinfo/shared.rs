@@ -3,7 +3,7 @@ use std::path::*;
 use display_info::DisplayInfo;
 use sysinfo::*;
 
-use crate::{cache::get_cache, common::*, config::Config};
+use crate::{cache::get_cache, common::*, config::Config, cli::Cli};
 
 const BYTES_TO_GB: u64 = 1_000_000_000;
 const KIB_TO_MB: u64 = 1024;
@@ -232,7 +232,7 @@ fn get_gpu_subsystem_ids() -> Option<(String, String)> {
 }
 
 /// Gets GPU family and possible names, returns them as string
-pub fn get_gpu_name() -> Option<String> {
+pub fn get_gpu_name(cli: &Cli) -> Option<String> {
     // TODO: This function is pretty long and, while being significantly faster than WGPU
     // (45ms vs 3ms) it is also less accurate. Shorten it and add accuracy
     let (vendor_id, device_id) = get_gpu_ids()?;
@@ -241,7 +241,7 @@ pub fn get_gpu_name() -> Option<String> {
     let subsystem_ids = subsystem_ids
         .map(|(subvendor, subdevice)| (format_hex(&subvendor), format_hex(&subdevice)));
 
-    if let Ok(cache) = get_cache() {
+    if let Ok(cache) = get_cache(cli) {
         // again, this shouldn't be collapsed
         if cache.gpu_device_id == device_id && cache.gpu_vendor_id == vendor_id {
             return Some(cache.gpu_name_pretty);

@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
-use crate::sysinfo::{get_gpu_ids, get_gpu_name_pretty};
+use crate::{sysinfo::{get_gpu_ids, get_gpu_name_pretty}, cli::Cli};
 
 #[derive(Serialize, Deserialize)]
 pub struct Cache {
@@ -60,9 +60,9 @@ pub fn create_cache() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn get_cache() -> Result<Cache, Box<dyn std::error::Error>> {
+pub fn get_cache(cli: &Cli) -> Result<Cache, Box<dyn std::error::Error>> {
     let cache_path = get_cache_path();
-    if std::fs::read_to_string(&cache_path).is_err() {
+    if std::fs::read_to_string(&cache_path).is_err() || cli.clear_cache{
         create_cache()?;
     }
     let contents = std::fs::read_to_string(&cache_path)?;

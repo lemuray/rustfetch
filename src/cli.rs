@@ -28,4 +28,10 @@ pub struct Cli {
         help = "Uses a different config file. Must provide a valid path"
     )]
     pub config_file: Option<PathBuf>,
+
+    #[arg(
+        long,
+        help = "Forcefully regenerates the cache file"
+    )]
+    pub clear_cache: bool,
 }

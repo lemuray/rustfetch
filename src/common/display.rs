@@ -6,6 +6,7 @@ use crate::{
     config::Config,
     platform::{self, get_power_draw},
     sysinfo::*,
+    cli::Cli,
 };
 
 fn color_percentage(percentage: u64) -> ColoredString {
@@ -110,8 +111,8 @@ pub fn display_disk_usage() -> String {
     )
 }
 
-pub fn display_gpu_name() -> Option<String> {
-    get_gpu_name().map(|gpu_name| format!("{} {}", "GPU:".bold(), gpu_name))
+pub fn display_gpu_name(cli: &Cli) -> Option<String> {
+    get_gpu_name(cli).map(|gpu_name| format!("{} {}", "GPU:".bold(), gpu_name))
 }
 
 pub fn display_screen(config: &Config) -> Option<String> {
