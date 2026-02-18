@@ -25,7 +25,3 @@ pub fn format_kernel_version() -> String {
 pub fn get_distro_id() -> String {
     String::from("macos")
 }
-
-pub fn colorize_logo_line(distro_id: &str, line: &str) -> ColoredString {
-    line.white()
-}

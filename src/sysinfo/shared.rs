@@ -134,34 +134,6 @@ pub fn get_cpu_frequency(sys: &System) -> u64 {
     sys.cpus().first().map(|cpu| cpu.frequency()).unwrap_or_else(|| 0)
 }
 
-/// Gets the lines logos in a vector and returns them
-pub fn get_logo_lines(distro_id: &str) -> Vec<String> {
-    // include_str!() works even in compiled binaries
-    let logo = match distro_id {
-        "arch" => include_str!("../../ascii/arch.txt"),
-        "ubuntu" => include_str!("../../ascii/ubuntu.txt"),
-        "fedora" => include_str!("../../ascii/fedora.txt"),
-        "manjaro" => include_str!("../../ascii/manjaro.txt"),
-        "debian" => include_str!("../../ascii/debian.txt"),
-        "opensuse" => include_str!("../../ascii/opensuse.txt"),
-        "alpine" => include_str!("../../ascii/alpine.txt"),
-        "gentoo" => include_str!("../../ascii/gentoo.txt"),
-        "endeavouros" => include_str!("../../ascii/endeavouros.txt"),
-        "popos" => include_str!("../../ascii/popos.txt"),
-        "cachyos" => include_str!("../../ascii/cachyos.txt"),
-        "garuda" => include_str!("../../ascii/garuda.txt"),
-        "linuxmint" => include_str!("../../ascii/linuxmint.txt"),
-        "kali" => include_str!("../../ascii/kali.txt"),
-        "macos" => include_str!("../../ascii/macos.txt"),
-        "zorin" => include_str!("../../ascii/zorin.txt"),
-        "elementary" => include_str!("../../ascii/elementary.txt"),
-        "nixos" => include_str!("../../ascii/nixos.txt"),
-        _ => "",
-    };
-
-    logo.lines().map(|l| l.to_string()).collect()
-}
-
 /// Gets the pretty version of the GPU through wgpu, this function is really slow (~45ms), so its
 /// value is stored in the cache and only retrieved at first startup or if the system ids do not
 /// match the ones in the cache

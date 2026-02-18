@@ -1,7 +1,5 @@
 use std::{fs, path::Path};
 
-use colored::*;
-
 use crate::{common::*, sysinfo::*};
 
 const BATTERY_CAPACITY_DIR: &str = "/sys/class/power_supply/BAT0/capacity";
@@ -47,32 +45,4 @@ pub fn get_disk_usage() -> (u64, u64, u64) {
 
 pub fn format_kernel_version() -> String {
     format!("Linux {}", get_kernel_version())
-}
-
-/// Getting a reference to an element of the vector of strings we're printing and matching it with
-/// the distro id, we get return its colorized version.
-/// Example: if distro_id = ubuntu, then we return line.orange()
-pub fn colorize_logo_line(distro_id: &str, line: &str) -> ColoredString {
-    // FIXME: This should be in display.rs, i don't know that i was on when i put this here
-    match distro_id {
-        // The exact colors should be tested on your distro and eventually changed it they do not
-        // match the color of the distro's logo excessively
-        "arch" => line.truecolor(23, 147, 209),
-        "ubuntu" => line.truecolor(255, 156, 0),
-        "cachyos" => line.truecolor(0, 184, 148),
-        "fedora" => line.truecolor(11, 87, 164),
-        "garuda" => line.truecolor(138, 43, 226),
-        "gentoo" => line.truecolor(84, 73, 149),
-        "endeavouros" => line.truecolor(122, 58, 237),
-        "kali" => line.truecolor(38, 139, 210),
-        "linuxmint" | "manjaro" => line.green(),
-        "debian" => line.red(),
-        "alpine" => line.cyan(),
-        "popos" => line.truecolor(72, 149, 239),
-        "opensuse" => line.truecolor(115, 186, 37),
-        "nixos" => line.truecolor(125, 176, 221),
-        "zorin" => line.truecolor(17, 162, 236),
-        "elementary" => line.white(),
-        _ => line.white(),
-    }
 }

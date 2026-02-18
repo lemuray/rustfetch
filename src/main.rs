@@ -5,13 +5,13 @@ pub mod config;
 pub mod platform;
 pub mod sysinfo;
 
-use std::io::{BufWriter, Write};
-
 use clap::Parser;
-use cli::Cli;
-use config::load_config;
 
-use crate::{config::load_all_config, platform::colorize_logo_line};
+use crate::{
+    cli::Cli,
+    common::{get_logo_lines, print_logo},
+    config::{load_all_config, load_config},
+};
 
 // TODO:
 // Add CPU, GPU: temps, usage
@@ -26,7 +26,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let sys = sysinfo::create_system(&config);
 
     let distro_id = platform::get_distro_id();
-    let logo_lines = sysinfo::get_logo_lines(&distro_id);
 
     let info_lines: Vec<String> = config
         .display
@@ -55,39 +54,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .collect();
 
-    let stdout = std::io::stdout();
-    let mut handle = BufWriter::new(stdout.lock());
+    let logo_lines = get_logo_lines(&distro_id);
 
-    if logo_lines.is_empty() {
-        // If the logo does not match any inside ../ascii/LOGO.txt, just print the info
-        for line in info_lines {
-            let _ = writeln!(handle, "{}", line);
-        }
-    } else {
-        let max_lines = logo_lines.len().max(info_lines.len());
-        // We get the maximum length from the logo using .max()
-        let logo_column_width = logo_lines.iter().map(|l| l.len()).max().unwrap_or(0);
+    print_logo(logo_lines, info_lines, &distro_id, &cli)?;
 
-        for i in 0 .. max_lines {
-            if i < logo_lines.len() {
-                write!(handle, "{}", colorize_logo_line(&distro_id, &logo_lines[i]))?;
-                let padding =
-                    logo_column_width.saturating_sub(logo_lines[i].len()) + cli.padding as usize;
-                write!(handle, "{:width$}", "", width = padding)?;
-            } else {
-                // when past logo lines, print spaces that are logo_column_width + padding
-                let total_width = logo_column_width + cli.padding as usize;
-                write!(handle, "{:width$}", "", width = total_width)?;
-            }
-
-            if i < info_lines.len() {
-                writeln!(handle, "  {}", info_lines[i])?;
-            } else {
-                writeln!(handle)?;
-            }
-        }
-    }
-
-    handle.flush()?;
     Ok(())
 }
