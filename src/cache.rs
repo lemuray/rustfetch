@@ -37,15 +37,13 @@ fn get_default_values() -> Cache {
     }
 }
 
-fn get_cache_path() -> PathBuf {
+pub fn get_cache_path() -> PathBuf {
     dirs::cache_dir()
         .map(|p| p.join("rustfetch/cache.toml"))
         .unwrap_or_else(|| PathBuf::from("cache.toml")) // as with config.rs, the fallback is the current directory
 }
 
 pub fn create_cache() -> Result<(), Box<dyn std::error::Error>> {
-    eprintln!("created cache");
-
     let cache_path = get_cache_path();
 
     if let Some(parent) = cache_path.parent() {
@@ -55,7 +53,10 @@ pub fn create_cache() -> Result<(), Box<dyn std::error::Error>> {
     let cache_defaults = get_default_values();
     let toml_string = toml::to_string(&cache_defaults)?;
 
-    std::fs::write(cache_path, toml_string)?;
+    std::fs::write(&cache_path, toml_string)?;
+
+    // apparently parsing a pathbuf to string needs 3 methods lol
+    eprintln!("Created cache at {}", cache_path.into_os_string().into_string().unwrap_or(String::from("")));
 
     Ok(())
 }

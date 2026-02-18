@@ -3,7 +3,7 @@ use std::path::*;
 use display_info::DisplayInfo;
 use sysinfo::*;
 
-use crate::{cache::get_cache, common::*, config::Config, cli::Cli};
+use crate::{cache::{create_cache, get_cache}, cli::Cli, common::*, config::Config};
 
 const BYTES_TO_GB: u64 = 1_000_000_000;
 const KIB_TO_MB: u64 = 1024;
@@ -245,6 +245,8 @@ pub fn get_gpu_name(cli: &Cli) -> Option<String> {
         // again, this shouldn't be collapsed
         if cache.gpu_device_id == device_id && cache.gpu_vendor_id == vendor_id {
             return Some(cache.gpu_name_pretty);
+        } else {
+            let _ = create_cache();
         }
     }
 
