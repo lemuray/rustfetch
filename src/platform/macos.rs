@@ -1,11 +1,5 @@
 use crate::sysinfo::*;
 
-// This will never run as it is called only if the program is compiled for linux
-// but it makes the compiler shut up
-pub fn get_battery() -> (String, String) {
-    (String::from("Null"), String::from("Null"))
-}
-
 // Same as before
 pub fn get_power_draw() -> i32 {
     0
@@ -23,3 +17,14 @@ pub fn format_kernel_version() -> String {
 pub fn get_distro_id() -> String {
     String::from("macos")
 }
+
+// the following functions will never run since they're for linux only features but the compiler
+// complains if they're not in macos
+pub fn get_battery() -> (String, String) {
+    (String::from("Null"), String::from("Null"))
+}
+pub fn get_gpu_ids() -> String {
+    String::from("Null")
+}
+pub fn get_gpu_ids() -> Option<(String, String)> {}
+fn get_gpu_subsystem_ids() -> Option<(String, String)> {}
