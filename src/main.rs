@@ -38,6 +38,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 config.display.os.then(common::display_os),
                 config.display.kernel.then(common::display_kernel),
                 config.display.cpu.then(|| common::display_cpu(&sys, &config)),
+                #[cfg(target_os = "linux")]
                 config.display.gpu.then(|| common::display_gpu_name(&cli)).flatten(),
                 config.display.screen.then(|| common::display_screen(&config)).flatten(),
                 config.display.ram.then(|| common::display_ram_usage(&sys)),

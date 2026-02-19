@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{sysinfo::{get_gpu_ids, get_gpu_name_pretty}, cli::Cli};
+use crate::{cli::Cli, platform::get_gpu_ids, sysinfo::get_gpu_name_pretty};
 
 #[derive(Serialize, Deserialize)]
 pub struct Cache {
@@ -56,14 +56,17 @@ pub fn create_cache() -> Result<(), Box<dyn std::error::Error>> {
     std::fs::write(&cache_path, toml_string)?;
 
     // apparently parsing a pathbuf to string needs 3 methods lol
-    eprintln!("Created cache at {}", cache_path.into_os_string().into_string().unwrap_or(String::from("")));
+    eprintln!(
+        "Created cache at {}",
+        cache_path.into_os_string().into_string().unwrap_or(String::from(""))
+    );
 
     Ok(())
 }
 
 pub fn get_cache(cli: &Cli) -> Result<Cache, Box<dyn std::error::Error>> {
     let cache_path = get_cache_path();
-    if std::fs::read_to_string(&cache_path).is_err() || cli.clear_cache{
+    if std::fs::read_to_string(&cache_path).is_err() || cli.clear_cache {
         create_cache()?;
     }
     let contents = std::fs::read_to_string(&cache_path)?;

@@ -2,17 +2,17 @@ use colored::*;
 use sysinfo::System;
 
 use crate::{
+    cli::Cli,
     common::{extract_numeric_value, round_to_two_decimal},
     config::Config,
     platform::{self, get_power_draw},
     sysinfo::*,
-    cli::Cli,
 };
 
 fn color_percentage(percentage: u64) -> ColoredString {
     if percentage < 40 {
         format!("{}%", percentage).green()
-    } else if (40 .. 80).contains(&percentage) {
+    } else if (40..80).contains(&percentage) {
         format!("{}%", percentage).yellow()
     } else {
         format!("{}%", percentage).red()
@@ -22,7 +22,7 @@ fn color_percentage(percentage: u64) -> ColoredString {
 fn color_percentage_inverse(percentage: f64) -> ColoredString {
     if percentage < 30.0 {
         format!("{}%", percentage).red()
-    } else if (30.0 .. 70.0).contains(&percentage) {
+    } else if (30.0..70.0).contains(&percentage) {
         format!("{}%", percentage).yellow()
     } else {
         format!("{}%", percentage).green()
@@ -112,7 +112,7 @@ pub fn display_disk_usage() -> String {
 }
 
 pub fn display_gpu_name(cli: &Cli) -> Option<String> {
-    get_gpu_name(cli).map(|gpu_name| format!("{} {}", "GPU:".bold(), gpu_name))
+    platform::get_gpu_name(cli).map(|gpu_name| format!("{} {}", "GPU:".bold(), gpu_name))
 }
 
 pub fn display_screen(config: &Config) -> Option<String> {
