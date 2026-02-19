@@ -49,11 +49,18 @@ jobs:
         if: matrix.use_cross
         run: cargo install cross --git https://github.com/cross-rs/cross
 
-      - name: Install system deps (Ubuntu) # Needed dependencies for the display_info crate
-        if: matrix.os == 'ubuntu-latest'
+      - name: Install system deps (Ubuntu x86_64)
+        if: matrix.os == 'ubuntu-latest' && matrix.use_cross == false
         run: |
           sudo apt-get update
           sudo apt-get install -y libxcb1-dev
+
+      - name: Setup cross-compilation deps (Ubuntu aarch64)
+        if: matrix.os == 'ubuntu-latest' && matrix.use_cross == true
+        run: |
+          sudo dpkg --add-architecture arm64
+          sudo apt-get update
+          sudo apt-get install -y libxcb1-dev:arm64
 
       - name: Build
         run: |
