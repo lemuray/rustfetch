@@ -5,9 +5,9 @@ Rustfetch is a CLI tool designed to **fetch system information** in the **fastes
 
 <!-- I think the following image handling is not very markdown idiomatic and there must be a way to do this in a better way, ive tried with an HTML table but GitHub markdown shows huge grey bands in empty table slots, any other approached would be appreaciated -->
 <p align="center">
-	<img src="docs/images/arch_0.2.avif" width="48%">
+	<img src="docs/images/arch_0.3.0.avif" width="48%">
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<img src="docs/images/ubuntu_0.2.avif" width="42%">
+	<img src="docs/images/fedora_0.3.0.avif" width="42%">
 </p>
 
 <p align="center">
