@@ -23,9 +23,9 @@ You can **copy and paste** this command to use the install script:
 curl -fsSL https://raw.githubusercontent.com/lemuray/rustfetch/main/install.sh | bash
 ```
 
-Alternatively, you can build the latest unstable version from source:
+Alternatively, you can build the latest release from source:
 ```bash
-cargo install --git https://github.com/lemuray/rustfetch.git
+cargo install --git https://github.com/lemuray/rustfetch.git --tag v0.3.0
 ```
 
 **In case installation fails** or you want to know more about the installation process, visit our [guide to installation](docs/guide_to_installation.md).

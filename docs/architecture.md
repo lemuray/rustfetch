@@ -12,6 +12,7 @@ src/
 ├── <a href="#mainrs">main.rs</a>         # Entry point
 ├── <a href="#configrs">config.rs</a>       # TOML config
 ├── <a href="#clirs">cli.rs</a>          # CLI argument parsing
+├── <a href="#cachers">cache.rs</a>        # Main caching logic file
 ├── common/         # Common functions across OSes and files
 │   ├── <a href="#displayrs">display.rs</a>  # Display formatting functions
 │   └── <a href="#utilsrs">utils.rs</a>    # Shared utility functions
@@ -106,3 +107,7 @@ This script is mostly used to assess runtime differences with new commits. This 
 cargo build --release
 scripts/runtime.sh --runs 30 --warmup 5 -- ./target/release/rustfetch
 ```
+## cache.rs
+This is the main file in which cache is handled, it generates a config file with the [default cache directory](https://docs.rs/dirs/latest/dirs/fn.cache_dir.html) using the Cache struct and parses toml from that same file.
+
+It is currently used to store WGPU GPU names which are more accurate than direct system file parsing but, on its own, way slower. Cache therefore also contains the ids taken at the moment the GPU name was extracted and are compared on every run of the program, if they do not match those in cache, the name is reextracted.
