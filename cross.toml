@@ -1,0 +1,5 @@
+[target.aarch64-unknown-linux-gnu]
+pre-build = [
+    "dpkg --add-architecture arm64",
+    "apt-get update && apt-get install -y --no-install-recommends libxcb1-dev:arm64 libxcb-render0-dev:arm64 libxcb-shape0-dev:arm64 libxcb-xfixes0-dev:arm64 libvulkan-dev:arm64 libwayland-dev:arm64 libxkbcommon-dev:arm64 pkg-config"
+]
