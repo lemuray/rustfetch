@@ -27,8 +27,8 @@ pub fn get_gpu_ids() -> String {
     String::from("Null")
 }
 pub fn get_gpu_ids() -> Option<(String, String)> {
-    (String::from("Null"), String::from("Null"))
+    Some(String::from("Null"), String::from("Null"))
 }
 fn get_gpu_subsystem_ids() -> Option<(String, String)> {
-    (String::from("Null"), String::from("Null"))
+    Some(String::from("Null"), String::from("Null"))
 }
