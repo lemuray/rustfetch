@@ -80,3 +80,37 @@ pub fn extract_numeric_value(input: &str) -> Result<f64, String> {
 pub fn format_hex(id: &str) -> String {
     id.trim_start_matches("0x").trim_start_matches("0X").to_ascii_lowercase()
 }
+
+/// Some AMD and Intel GPUs will return their name as "GPU_NAME (Some unneded stuff)".
+/// For example "AMD Ryzen RX 580 Series (RADV POLARIS10)".
+/// Here we're just truncating the string to get those parentheses out
+pub fn strip_gpu_name(gpu_name: &str) -> String {
+    let mut end_pos = gpu_name.len();
+    if let Some(parentheses_pos) = gpu_name.find("(") {
+        end_pos = end_pos.min(parentheses_pos);
+    }
+
+    (gpu_name[..end_pos]).to_string()
+}
+
+/// cpu.brand() from sysinfo returns the full name of the CPU, for example:
+/// "Ryzen 5 5600X 6-Core Processor".
+/// We just find the first occurrence of any known suffix and get anything before it
+pub fn strip_cpu_name(full_name: &str) -> String {
+    let mut end_pos = full_name.len();
+    if let Some(pos) = full_name.find(" with ") {
+        end_pos = end_pos.min(pos);
+    }
+    if let Some(pos) = full_name.find(" @ ") {
+        end_pos = end_pos.min(pos);
+    }
+
+    // looks for "-Core" pattern like "6-Core Processor"
+    if let Some(pos) = full_name.find("-Core")
+        && let Some(space_pos) = full_name[..pos].rfind(' ')
+    {
+        end_pos = end_pos.min(space_pos);
+    }
+
+    full_name[..end_pos].trim().to_string()
+}

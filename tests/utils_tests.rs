@@ -94,3 +94,39 @@ fn convert_to_bytes_invalid_input() {
     let result = convert_to_bytes(-15.0);
     assert_eq!(result, Err("Memory value cannot be negative".to_string()));
 }
+
+#[test]
+fn strip_gpu_name_normal_use() {
+    let result = strip_gpu_name("AMD Sapphire RX 590 (RADV POLARIS)");
+    assert_eq!(result, String::from("AMD Sapphire RX 590 "));
+
+    let result = strip_gpu_name("Intel Arc Pro B50");
+    assert_eq!(result, String::from("Intel Arc Pro B50"));
+
+    let result = strip_gpu_name("Nvidia Geforce GTX ( 1070");
+    assert_eq!(result, String::from("Nvidia Geforce GTX "))
+}
+
+#[test]
+fn strip_gpu_name_empty_string() {
+    let result = strip_gpu_name("");
+    assert_eq!(result, String::from(""));
+}
+
+#[test]
+fn strip_cpu_name_normal_use() {
+    let result = strip_cpu_name("Ryzen 7 7800x with 3D V-Cache");
+    assert_eq!(result, String::from("Ryzen 7 7800x"));
+
+    let result = strip_cpu_name("Intel i5 12400KF @ 3.04Ghz");
+    assert_eq!(result, String::from("Intel i5 12400KF"));
+
+    let result = strip_cpu_name("Ryzen 5 5600x 6-Core Processor");
+    assert_eq!(result, String::from("Ryzen 5 5600x"))
+}
+
+#[test]
+fn strip_cpu_name_empty_string() {
+    let result = strip_cpu_name("");
+    assert_eq!(result, String::from(""));
+}
