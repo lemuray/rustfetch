@@ -29,9 +29,6 @@ pub struct Cli {
     )]
     pub config_file: Option<PathBuf>,
 
-    #[arg(
-        long,
-        help = "Forcefully regenerates the cache file"
-    )]
+    #[arg(long, help = "Forcefully regenerates the cache file")]
     pub clear_cache: bool,
 }

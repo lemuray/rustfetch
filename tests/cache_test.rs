@@ -4,11 +4,11 @@ use clap::Parser;
 use rustfetch::{cache::*, cli::Cli, platform::get_gpu_name};
 
 fn get_incorrect_ids() -> Cache {
-    return Cache {
+    Cache {
         gpu_name_pretty: String::from(""),
         gpu_vendor_id: String::from("Incorrect ID"),
         gpu_device_id: String::from("Incorrect ID"),
-    };
+    }
 }
 
 #[test]

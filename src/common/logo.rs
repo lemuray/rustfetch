@@ -1,14 +1,16 @@
 //! This file handles everything related to displaying the distro logo
 
-use crate::cli::Cli;
-use colored::*;
 use std::io::{BufWriter, Write};
+
+use colored::*;
+
+use crate::cli::Cli;
 
 /// Gets the lines logos in a vector and returns them
 pub fn get_logo_lines(distro_id: &str) -> Vec<String> {
     // include_str!() works even in compiled binaries
     let logo = match distro_id {
-        "arch" => include_str!("../../ascii/arch.txt"), // TEMPORARY ----------------------------------------------
+        "arch" => include_str!("../../ascii/arch.txt"),
         "ubuntu" => include_str!("../../ascii/ubuntu.txt"),
         "fedora" => include_str!("../../ascii/fedora.txt"),
         "manjaro" => include_str!("../../ascii/manjaro.txt"),

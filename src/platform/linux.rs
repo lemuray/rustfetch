@@ -138,7 +138,7 @@ pub fn get_gpu_name(cli: &Cli) -> Option<String> {
                 }
             }
         } else if current_vendor.is_some() && line.starts_with('\t') && !line.starts_with("\t\t") {
-            if let Some(device) = line.trim().split_whitespace().next() {
+            if let Some(device) = line.split_whitespace().next() {
                 if device.eq_ignore_ascii_case(&device_id) {
                     let name = line.split_once("  ")?.1.trim();
                     current_device = Some(name);

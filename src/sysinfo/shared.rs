@@ -117,12 +117,12 @@ pub fn get_cpu_name(sys: &System) -> String {
 
             // looks for "-Core" pattern like "6-Core Processor"
             if let Some(pos) = full_name.find("-Core")
-                && let Some(space_pos) = full_name[..pos].rfind(' ')
+                && let Some(space_pos) = full_name[.. pos].rfind(' ')
             {
                 end_pos = end_pos.min(space_pos);
             }
 
-            full_name[..end_pos].trim().to_string()
+            full_name[.. end_pos].trim().to_string()
         })
         .unwrap_or_else(|| String::from("Unknown CPU"))
 }
@@ -152,7 +152,7 @@ pub fn get_gpu_name_pretty() -> Option<String> {
             end_pos = end_pos.min(parentheses_pos);
         }
 
-        return Some((gpu_name[..end_pos]).to_string());
+        return Some((gpu_name[.. end_pos]).to_string());
     }
 
     None
