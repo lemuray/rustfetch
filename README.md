@@ -23,6 +23,11 @@ You can **copy and paste** this command to use the install script:
 curl -fsSL https://raw.githubusercontent.com/lemuray/rustfetch/main/install.sh | bash
 ```
 
+If you're on NixOS, you can install it from nixpkgs (Special thanks to [LeFaucheur0769](https://github.com/LeFaucheur0769)!):
+```bash
+nix shell nixpkgs#rustfetch
+```
+
 Alternatively, you can build the latest release from source:
 ```bash
 cargo install --git https://github.com/lemuray/rustfetch.git --tag v0.3.0
