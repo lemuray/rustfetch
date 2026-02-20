@@ -15,13 +15,27 @@ chmod +x install.sh
 ./install.sh
 ```
 
+## Package managers
+Rustfetch is currently available on nixpkgs, to install it system wide run:
+```bash
+nix shell nixpkgs#rustfetch
+```
+Or you can also install it for the current shell only:
+```bash
+nix-shell -p rustfetch
+```
+
 ## Build it from source
-You can also build rustfetch directly from source:
+You can also build rustfetch directly from source, fetching the latest release:
 
 > Note: in order to build the code from source, you have to have [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) installed
 
 ```bash
-cargo install --git https://github.com/lemuray/rustfetch.git
+cargo install --git https://github.com/lemuray/rustfetch.git --tag v0.3.0
+```
+You can also build from the main branch, note that this branch is not tested on and may cause bugs
+```bash
+cargo install --git https://github.com/lemuray/rustfetch.git --branch main
 ```
 
 ## Manual installation
