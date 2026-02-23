@@ -100,7 +100,7 @@ pub fn get_logo_style(logo: Vec<String>) -> Option<Vec<ParsedLine>> {
 /// Gets the lines logos in a vector and returns them
 pub fn get_logo_lines(distro_id: &str) -> Vec<String> {
     let logo = match distro_id {
-        "arch" => include_str!("../../ascii/void.txt"),
+        "arch" => include_str!("../../ascii/arch.txt"),
         "ubuntu" => include_str!("../../ascii/ubuntu.txt"),
         "fedora" => include_str!("../../ascii/fedora.txt"),
         "manjaro" => include_str!("../../ascii/manjaro.txt"),
@@ -124,6 +124,7 @@ pub fn get_logo_lines(distro_id: &str) -> Vec<String> {
     logo.lines().map(|l| l.to_string()).collect()
 }
 
+#[rustfmt::skip]
 /// match a u8 id value to its assigned color
 fn color_id_to_color(id: u8) -> Option<Color> {
     match id {
@@ -132,14 +133,10 @@ fn color_id_to_color(id: u8) -> Option<Color> {
         2 => Some(Color::Yellow),
         3 => Some(Color::Red),
         4 => Some(Color::Green),
-        5 => Some(Color::TrueColor {
-            // grey
-            r: (96),
-            g: (96),
-            b: (96),
-        }),
+        5 => Some(Color::TrueColor {r: (96), g: (96), b: (96)}), // grey
         6 => Some(Color::Cyan),
-        7 => Some(Color::White),
+        7 => Some(Color::TrueColor { r: (148), g: (0), b: (211) }), // purple
+        8 => Some(Color::TrueColor {r: (255), g: (156), b: (0)}), // orange
         _ => None,
     }
 }
