@@ -1152,6 +1152,7 @@ dependencies = [
  "serde",
  "sysinfo",
  "toml",
+ "unicode-width",
  "wgpu",
 ]
 

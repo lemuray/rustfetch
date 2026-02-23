@@ -9,7 +9,7 @@ use clap::Parser;
 
 use crate::{
     cli::Cli,
-    common::{get_logo_lines, print_logo},
+    common::{get_logo_lines, get_logo_style, print_logo},
     config::{load_all_config, load_config},
 };
 
@@ -57,7 +57,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let logo_lines = get_logo_lines(&distro_id);
 
-    print_logo(logo_lines, info_lines, &distro_id, &cli)?;
+    if let Some(parsed_lines) = get_logo_style(logo_lines) {
+        print_logo(parsed_lines, info_lines, &cli)?;
+    }
 
     Ok(())
 }
