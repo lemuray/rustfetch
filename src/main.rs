@@ -9,7 +9,7 @@ use clap::Parser;
 
 use crate::{
     cli::Cli,
-    common::{get_logo_lines, get_logo_style, print_logo},
+    common::*,
     config::{load_all_config, load_config},
 };
 
@@ -30,25 +30,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let info_lines: Vec<String> = config
         .display
         .identifier
-        .then(common::display_identifier)
+        .then(display_identifier)
         .into_iter()
         .flatten()
         .chain(
             vec![
-                config.display.os.then(common::display_os),
-                config.display.kernel.then(common::display_kernel),
-                config.display.cpu.then(|| common::display_cpu(&sys, &config)),
+                config.display.os.then(display_os),
+                config.display.kernel.then(display_kernel),
+                config.display.wm.then(display_wm).flatten(),
+                config.display.cpu.then(|| display_cpu(&sys, &config)),
+                #[cfg(target_os = "linux")] // yet to be implemented, possible
+                config.display.gpu.then(|| display_gpu_name(&cli)).flatten(),
+                config.display.screen.then(|| display_screen(&config)).flatten(),
+                config.display.ram.then(|| display_ram_usage(&sys)),
+                config.display.swap.then(|| display_swap_usage(&sys)),
+                config.display.uptime.then(display_uptime),
                 #[cfg(target_os = "linux")]
-                config.display.gpu.then(|| common::display_gpu_name(&cli)).flatten(),
-                config.display.screen.then(|| common::display_screen(&config)).flatten(),
-                config.display.ram.then(|| common::display_ram_usage(&sys)),
-                config.display.swap.then(|| common::display_swap_usage(&sys)),
-                config.display.uptime.then(common::display_uptime),
+                config.display.battery.then(display_battery).flatten(),
                 #[cfg(target_os = "linux")]
-                config.display.battery.then(common::display_battery).flatten(),
-                #[cfg(target_os = "linux")]
-                config.display.power_draw.then(common::display_power_draw).flatten(),
-                config.display.disk.then(common::display_disk_usage),
+                config.display.power_draw.then(display_power_draw).flatten(),
+                config.display.disk.then(display_disk_usage),
             ]
             .into_iter()
             .flatten(),

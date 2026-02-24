@@ -12,7 +12,7 @@ use crate::{
 fn color_percentage(percentage: u64) -> ColoredString {
     if percentage < 40 {
         format!("{}%", percentage).green()
-    } else if (40 .. 80).contains(&percentage) {
+    } else if (40..80).contains(&percentage) {
         format!("{}%", percentage).yellow()
     } else {
         format!("{}%", percentage).red()
@@ -22,7 +22,7 @@ fn color_percentage(percentage: u64) -> ColoredString {
 fn color_percentage_inverse(percentage: f64) -> ColoredString {
     if percentage < 30.0 {
         format!("{}%", percentage).red()
-    } else if (30.0 .. 70.0).contains(&percentage) {
+    } else if (30.0..70.0).contains(&percentage) {
         format!("{}%", percentage).yellow()
     } else {
         format!("{}%", percentage).green()
@@ -157,4 +157,10 @@ pub fn display_identifier() -> Vec<String> {
     identifier = format!("{}", identifier.bold());
 
     vec![identifier, underline]
+}
+
+pub fn display_wm() -> Option<String> {
+    let wm = get_window_manager()?;
+    let ds = get_display_system()?;
+    Some(format!("{} {} ({})", "WM:".bold(), wm, ds))
 }

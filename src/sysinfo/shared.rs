@@ -124,7 +124,7 @@ pub fn get_gpu_name_pretty() -> Option<String> {
 
     if let Some(adapter) = adapters.into_iter().next() {
         let gpu_name = adapter.get_info().name;
-        return Some(strip_gpu_name(&gpu_name))
+        return Some(strip_gpu_name(&gpu_name));
     }
 
     None
@@ -152,4 +152,16 @@ pub fn get_host_name() -> Option<String> {
 
 pub fn get_username() -> String {
     std::env::var("USER").unwrap_or_else(|_| "unknown".to_string())
+}
+
+pub fn get_window_manager() -> Option<String> {
+    std::env::var("XDG_CURRENT_DESKTOP").ok()
+}
+
+pub fn get_display_system() -> Option<String> {
+    match std::env::var("XDG_SESSION_TYPE").ok().as_deref() {
+        Some("wayland") => Some(String::from("Wayland")),
+        Some("x11") => Some(String::from("x11")),
+        _ => None,
+    }
 }
