@@ -20,7 +20,7 @@ pub struct DisplayConfig {
     pub os: bool,
     pub kernel: bool,
     pub uptime: bool,
-    pub wm: bool,
+    pub de: bool,
     pub cpu: bool,
     pub cpu_frequency: bool,
     pub gpu: bool,
@@ -42,7 +42,7 @@ impl Default for DisplayConfig {
             os: true,
             kernel: true,
             uptime: true,
-            wm: true,
+            de: true,
             cpu: true,
             cpu_frequency: false,
             gpu: true,
@@ -71,7 +71,7 @@ kernel = true
 # Display system uptime
 uptime = true
 # Display window manager
-wm = true
+de = true
 
 # CPU INFO
 # --------
@@ -165,7 +165,7 @@ pub fn load_all_config() -> Config {
             os: true,
             kernel: true,
             uptime: true,
-            wm: true,
+            de: true,
             cpu: true,
             cpu_frequency: true,
             gpu: true,

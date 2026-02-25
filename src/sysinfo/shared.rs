@@ -154,7 +154,7 @@ pub fn get_username() -> String {
     std::env::var("USER").unwrap_or_else(|_| "unknown".to_string())
 }
 
-pub fn get_window_manager() -> Option<String> {
+pub fn get_de() -> Option<String> {
     std::env::var("XDG_CURRENT_DESKTOP").ok()
 }
 

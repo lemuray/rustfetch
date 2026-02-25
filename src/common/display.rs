@@ -139,6 +139,12 @@ pub fn display_screen(config: &Config) -> Option<String> {
         refresh_rate = String::from("");
     }
 
+    if resolution.is_empty() && refresh_rate.is_empty() {
+        // if both are empty, i.e. if the system is headless
+        // or no screen is detected return None
+        return None;
+    }
+
     Some(format!("{} {} {}", "Screen:".bold(), resolution, refresh_rate))
 }
 
@@ -159,8 +165,8 @@ pub fn display_identifier() -> Vec<String> {
     vec![identifier, underline]
 }
 
-pub fn display_wm() -> Option<String> {
-    let wm = get_window_manager()?;
+pub fn display_de() -> Option<String> {
+    let de = get_de()?;
     let ds = get_display_system()?;
-    Some(format!("{} {} ({})", "WM:".bold(), wm, ds))
+    Some(format!("{} {} ({})", "DE:".bold(), de, ds))
 }

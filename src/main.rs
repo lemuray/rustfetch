@@ -37,7 +37,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             vec![
                 config.display.os.then(display_os),
                 config.display.kernel.then(display_kernel),
-                config.display.wm.then(display_wm).flatten(),
+                config.display.de.then(display_de).flatten(),
                 config.display.cpu.then(|| display_cpu(&sys, &config)),
                 #[cfg(target_os = "linux")] // yet to be implemented, possible
                 config.display.gpu.then(|| display_gpu_name(&cli)).flatten(),
