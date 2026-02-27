@@ -31,4 +31,7 @@ pub struct Cli {
 
     #[arg(long, help = "Forcefully regenerates the cache file")]
     pub clear_cache: bool,
+
+    #[arg(long, help = "Displays a smaller logo")]
+    pub small_logo: bool,
 }

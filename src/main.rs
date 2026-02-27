@@ -56,7 +56,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .collect();
 
-    let logo_lines = get_logo_lines(&distro_id);
+    let logo_lines = get_logo_lines(&distro_id, &cli);
 
     if let Some(parsed_lines) = get_logo_style(logo_lines) {
         print_logo(parsed_lines, info_lines, &cli)?;

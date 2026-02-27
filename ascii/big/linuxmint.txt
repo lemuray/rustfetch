@@ -1,0 +1,19 @@
+            {c:0}_.-ppOOOOOOqq-._
+         .oOOOOPPPPPPPPPPOOOOo.
+      .oOOOO{c:4}.=oOOOOOOOOOOo=.{c:0}OOOOo.
+    .:OOO{c:4}.=oOOOOOOOOOOOOOOOOo=.{c:0}OOO:.
+   .OOO{c:4}.OOOOOOOOOOOOOOOOOOOOOOOO.{c:0}OOO.
+  .OOO{c:4}.OO    OOO:´   `::´    `:OOO.{c:0}OO:
+ .OOO{c:4}.OOO    OO                OOO.{c:0}OOO:
+ OOO{c:4}.OOOO    OO    oo    oo    OOOO.{c:0}OOO
+:OOO{c:4}:OOOO    OO    OO    OO    OOOO:{c:0}OOO:
+:OOO{c:4}:OOOO    OO    OO    OO    OOOO:{c:0}OOO:
+'OOO{c:4}'OOOO    OO    OO    OO    OOOO'{c:0}OOO'
+ OOO{c:4}'OOOO    OO____OO____OO    OOOO'{c:0}OOO'
+ 'OOO{c:4}'OOO    'OOOOOOOOOOOO'    OOOO'{c:0}OOO
+  'OOO{c:4}'OOO                    .OOO'{c:0}OOO'
+   'OOO{c:4}'OOOO:ooooooooooooooo:OOOO'{c:0}OOO'
+    ':OOOo{c:4}'=OOOOOOOOOOOOOOOOO='{c:0}oOOO:'
+      ':OOOOo{c:4}'=OOOOOOOOOOO='{c:0}oOOOO:'
+         ``-OOOOooooooooooOOOO-´´
+             ```-=:OOOO:=-´´´

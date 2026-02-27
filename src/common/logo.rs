@@ -98,28 +98,64 @@ pub fn get_logo_style(logo: Vec<String>) -> Option<Vec<ParsedLine>> {
 }
 
 /// Gets the lines logos in a vector and returns them
-pub fn get_logo_lines(distro_id: &str) -> Vec<String> {
-    let logo = match distro_id {
-        "arch" => include_str!("../../ascii/arch.txt"),
-        "ubuntu" => include_str!("../../ascii/ubuntu.txt"),
-        "fedora" => include_str!("../../ascii/fedora.txt"),
-        "manjaro" => include_str!("../../ascii/manjaro.txt"),
-        "debian" => include_str!("../../ascii/debian.txt"),
-        "opensuse" => include_str!("../../ascii/opensuse.txt"),
-        "alpine" => include_str!("../../ascii/alpine.txt"),
-        "gentoo" => include_str!("../../ascii/gentoo.txt"),
-        "endeavouros" => include_str!("../../ascii/endeavouros.txt"),
-        "popos" => include_str!("../../ascii/popos.txt"),
-        "cachyos" => include_str!("../../ascii/cachyos.txt"),
-        "garuda" => include_str!("../../ascii/garuda.txt"),
-        "linuxmint" => include_str!("../../ascii/linuxmint.txt"),
-        "kali" => include_str!("../../ascii/kali.txt"),
-        "macos" => include_str!("../../ascii/macos.txt"),
-        "zorin" => include_str!("../../ascii/zorin.txt"),
-        "elementary" => include_str!("../../ascii/elementary.txt"),
-        "nixos" => include_str!("../../ascii/nixos.txt"),
-        _ => "",
-    };
+pub fn get_logo_lines(distro_id: &str, cli: &Cli) -> Vec<String> {
+    // the following variable is used in case the small_logo
+    // flag is active and the logo doesn't have a small equivalent,
+    // it becomes negative when the small logo is not found so the
+    // function parses the bigger logos instead
+    let mut found = true;
+    let mut logo = "";
+    if cli.small_logo {
+        logo = match distro_id {
+            "arch" => include_str!("../../ascii/small/arch.txt"),
+            "ubuntu" => include_str!("../../ascii/small/ubuntu.txt"),
+            "fedora" => include_str!("../../ascii/small/fedora.txt"),
+            "manjaro" => include_str!("../../ascii/small/manjaro.txt"),
+            "debian" => include_str!("../../ascii/small/debian.txt"),
+            "opensuse" => include_str!("../../ascii/small/opensuse.txt"),
+            "alpine" => include_str!("../../ascii/small/alpine.txt"),
+            "gentoo" => include_str!("../../ascii/small/gentoo.txt"),
+            "endeavouros" => include_str!("../../ascii/small/endeavouros.txt"),
+            "popos" => include_str!("../../ascii/small/popos.txt"),
+            "cachyos" => include_str!("../../ascii/small/cachyos.txt"),
+            "garuda" => include_str!("../../ascii/small/garuda.txt"),
+            "linuxmint" => include_str!("../../ascii/small/linuxmint.txt"),
+            "kali" => include_str!("../../ascii/small/kali.txt"),
+            "macos" => include_str!("../../ascii/small/macos.txt"),
+            "nixos" => include_str!("../../ascii/small/nixos.txt"),
+            _ => {
+                found = false;
+                ""
+            },
+        };
+    }
+    if !cli.small_logo || !found {
+        logo = match distro_id {
+            "arch" => include_str!("../../ascii/big/arch.txt"),
+            "ubuntu" => include_str!("../../ascii/big/ubuntu.txt"),
+            "fedora" => include_str!("../../ascii/big/fedora.txt"),
+            "manjaro" => include_str!("../../ascii/big/manjaro.txt"),
+            "debian" => include_str!("../../ascii/big/debian.txt"),
+            "opensuse" => include_str!("../../ascii/big/opensuse.txt"),
+            "alpine" => include_str!("../../ascii/big/alpine.txt"),
+            "gentoo" => include_str!("../../ascii/big/gentoo.txt"),
+            "endeavouros" => include_str!("../../ascii/big/endeavouros.txt"),
+            "popos" => include_str!("../../ascii/big/popos.txt"),
+            "cachyos" => include_str!("../../ascii/big/cachyos.txt"),
+            "garuda" => include_str!("../../ascii/big/garuda.txt"),
+            "linuxmint" => include_str!("../../ascii/big/linuxmint.txt"),
+            "kali" => include_str!("../../ascii/big/kali.txt"),
+            "macos" => include_str!("../../ascii/big/macos.txt"),
+            "zorin" => include_str!("../../ascii/big/zorin.txt"),
+            "elementary" => include_str!("../../ascii/big/elementary.txt"),
+            "void" => include_str!("../../ascii/big/void.txt"),
+            "lubuntu" => include_str!("../../ascii/big/lubuntu.txt"),
+            "kubuntu" => include_str!("../../ascii/big/kubuntu.txt"),
+            "truenas-scale" => include_str!("../../ascii/big/truenas-scale.txt"),
+            "nixos" => include_str!("../../ascii/big/nixos.txt"),
+            _ => "",
+        };
+    }
 
     logo.lines().map(|l| l.to_string()).collect()
 }

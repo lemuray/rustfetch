@@ -1,0 +1,15 @@
+                     {c:3}./{c:7}o{c:6}.
+                   {c:3}./{c:7}sssso{c:6}-
+                 {c:3}`:{c:7}osssssss+{c:6}-
+               {c:3}`:+{c:7}sssssssssso{c:6}/.
+             {c:3}`-/o{c:7}ssssssssssssso{c:6}/.
+           {c:3}`-/+{c:7}sssssssssssssssso{c:6}+:`
+         {c:3}`-:/+{c:7}sssssssssssssssssso{c:6}+/.
+       {c:3}`.://o{c:7}sssssssssssssssssssso{c:6}++-
+      {c:3}.://+{c:7}ssssssssssssssssssssssso{c:6}++:
+    {c:3}.:///o{c:7}ssssssssssssssssssssssssso{c:6}++:
+  {c:3}`:////{c:7}ssssssssssssssssssssssssssso{c:6}+++.
+{c:3}`-////+{c:7}ssssssssssssssssssssssssssso{c:6}++++-
+ {c:3}`..-+{c:7}oosssssssssssssssssssssssso{c:6}+++++/`
+   {c:6}./++++++++++++++++++++++++++++++/:.
+  `:::::::::::::::::::::::::------``
