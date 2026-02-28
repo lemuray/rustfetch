@@ -19,7 +19,7 @@ pub struct DisplayConfig {
     pub identifier: bool,
     pub os: bool,
     pub kernel: bool,
-    pub uptime: bool,
+    pub shell: bool,
     pub de: bool,
     pub cpu: bool,
     pub cpu_frequency: bool,
@@ -29,6 +29,9 @@ pub struct DisplayConfig {
     pub refresh_rate: bool,
     pub ram: bool,
     pub swap: bool,
+    pub uptime: bool,
+    pub date: bool,
+    pub time: bool,
     pub disk: bool,
     pub battery: bool,
     pub power_draw: bool,
@@ -41,7 +44,7 @@ impl Default for DisplayConfig {
             identifier: true,
             os: true,
             kernel: true,
-            uptime: true,
+            shell: true,
             de: true,
             cpu: true,
             cpu_frequency: false,
@@ -51,6 +54,9 @@ impl Default for DisplayConfig {
             refresh_rate: true,
             ram: true,
             swap: true,
+            uptime: true,
+            date: false,
+            time: false,
             disk: true,
             battery: true,
             power_draw: false,
@@ -68,43 +74,39 @@ identifier = true
 os = true
 # Display the kernel version
 kernel = true
-# Display system uptime
-uptime = true
-# Display window manager
+shell = true
+
+# Display desktop environment
 de = true
 
 # CPU INFO
-# --------
 # Display CPU info
 cpu = true
     cpu_frequency = false
 
 # GRAPHICS INFO
-# --------
 gpu = true
 screen = true
     resolution = true
     refresh_rate = true
 
 # MEMORY INFO
-# -----------
-# Display RAM usage
 ram = true
-# Display swap usage
 swap = true
 
+# Time info
+uptime = true
+date = false
+time = false
+
 # DISK INFO
-# ---------
 # Display disk usage
 disk = true
 
 # LAPTOP-RELATED INFO (Linux only)
 # If the device is not a laptop, turning
 # these on just wont display anything
-# --------------------------------------
-# Display battery information
 battery = true
-# Display power draw
 power_draw = false
 "#
     .to_string()
@@ -164,7 +166,7 @@ pub fn load_all_config() -> Config {
             identifier: true,
             os: true,
             kernel: true,
-            uptime: true,
+            shell: true,
             de: true,
             cpu: true,
             cpu_frequency: true,
@@ -174,6 +176,9 @@ pub fn load_all_config() -> Config {
             refresh_rate: true,
             ram: true,
             swap: true,
+            uptime: true,
+            date: true,
+            time: true,
             disk: true,
             battery: true,
             power_draw: true,

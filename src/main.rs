@@ -37,6 +37,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             vec![
                 config.display.os.then(display_os),
                 config.display.kernel.then(display_kernel),
+                config.display.kernel.then(display_shell).flatten(),
                 config.display.de.then(display_de).flatten(),
                 config.display.cpu.then(|| display_cpu(&sys, &config)),
                 #[cfg(target_os = "linux")] // yet to be implemented, possible
@@ -45,6 +46,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 config.display.ram.then(|| display_ram_usage(&sys)),
                 config.display.swap.then(|| display_swap_usage(&sys)),
                 config.display.uptime.then(display_uptime),
+                config.display.date.then(display_date),
+                config.display.time.then(display_time),
                 #[cfg(target_os = "linux")]
                 config.display.battery.then(display_battery).flatten(),
                 #[cfg(target_os = "linux")]

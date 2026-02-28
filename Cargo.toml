@@ -8,12 +8,14 @@ name = "rustfetch"
 path = "src/main.rs"
 
 [dependencies]
+chrono = "0.4.44"
 clap = { version = "4.5.59", features = ["derive"] }
 colored = "3.1.1"
 dirs = "6.0.0"
 display-info = "0.5.7"
 pollster = "0.4.0"
 serde = { version = "1.0.228", features = ["derive"] }
+shellver = "2.0.1"
 sysinfo = "0.37.2"
 toml = "0.9.12"
 unicode-width = "0.2.2"

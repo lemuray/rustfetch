@@ -1,3 +1,4 @@
+use chrono::*;
 use colored::*;
 use sysinfo::System;
 
@@ -169,4 +170,22 @@ pub fn display_de() -> Option<String> {
     let de = get_de()?;
     let ds = get_display_system()?;
     Some(format!("{} {} ({})", "DE:".bold(), de, ds))
+}
+
+pub fn display_date() -> String {
+    let time: DateTime<Local> = Local::now();
+    format!("{} {}", "Date:".bold(), time.format("%d/%m/%Y"))
+}
+
+pub fn display_time() -> String {
+    let time: DateTime<Local> = Local::now();
+    format!("{} {}", "Time:".bold(), time.format("%H:%M:%S"))
+}
+
+pub fn display_shell() -> Option<String> {
+    if let Ok((shell, version)) = get_shell() {
+        Some(format!("{} {} {}", "Shell:".bold(), shell, version))
+    } else {
+        None
+    }
 }

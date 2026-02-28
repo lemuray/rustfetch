@@ -1,4 +1,5 @@
 use display_info::DisplayInfo;
+use shellver::Shell;
 use sysinfo::*;
 
 use crate::{common::*, config::Config};
@@ -164,4 +165,11 @@ pub fn get_display_system() -> Option<String> {
         Some("x11") => Some(String::from("x11")),
         _ => None,
     }
+}
+
+pub fn get_shell() -> Result<(String, String), std::io::Error> {
+    let shell = Shell::detect()?;
+    let name = shell.name().to_string();
+    let version = shell.version().unwrap_or_else(|| "unknown".to_string());
+    Ok((name, version))
 }
