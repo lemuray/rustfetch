@@ -15,7 +15,8 @@ src/
 ├── <a href="#cachers">cache.rs</a>        # Main caching logic file
 ├── common/         # Common functions across OSes and files
 │   ├── <a href="#displayrs">display.rs</a>  # Display formatting functions
-│   └── <a href="#utilsrs">utils.rs</a>    # Shared utility functions
+│   ├── <a href="#utilsrs">utils.rs</a>    # Shared utility functions
+│   └── <a href="#logors">logo.rs</a>     # Main logo logic
 ├── platform/       # OS-specific implementations
 │   ├── <a href="#modrs-platform">mod.rs</a>      # Exposes modules based on OS
 │   ├── linux.rs       
@@ -111,3 +112,48 @@ scripts/runtime.sh --runs 30 --warmup 5 -- ./target/release/rustfetch
 This is the main file in which cache is handled, it generates a config file with the [default cache directory](https://docs.rs/dirs/latest/dirs/fn.cache_dir.html) using the Cache struct and parses toml from that same file.
 
 It is currently used to store WGPU GPU names which are more accurate than direct system file parsing but, on its own, way slower. Cache therefore also contains the ids taken at the moment the GPU name was extracted and are compared on every run of the program, if they do not match those in cache, the name is reextracted.
+
+## logo.rs
+This file handles **almost all of the logic related to printing the logo** and parsing color changes, it stores the logo in the following order:
+
+``Segment (With style) > ParsedLine (Vector of Segments) > Vector of ParsedLines as final logo``
+
+Let's take the following string and consider that a logo to make an example:
+```
+{c:3}&$???
+.8{c:0}898
+```
+The first line is a single segment since it only has one color and no changes mid-line, so it would be:
+```rust
+ParsedLine[0] {
+    Segment[0]{
+        text: "&$???"
+        style: Style {
+            color_id: 3
+        }
+        visible_width: 5
+    }
+}
+```
+The second line is composed by **two segments**, and the first one carries the color from last line over:
+```rust
+ParsedLine[1] {
+    Segment[0]{
+        text: ".8"
+        style: Style {
+            color_id: 3
+        }
+        visible_width: 2
+    }
+    Segment[1]{
+        text: "898"
+        style: Style {
+            color_id: 0
+        }
+        visible_width: 3
+    }
+}
+```
+So now our logo is stored in a vector of ParseLine structs and can be printed in the reverse way we got it.
+
+Each color_id is correspondend to a color inside the ``Colored`` crate, so for example ``{c:1}`` is blue, check the ``color_id_to_color`` function to see each corresponding color.
