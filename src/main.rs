@@ -25,6 +25,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     let sys = sysinfo::create_system(&config);
 
+    init_logging();
+
     let distro_id = platform::get_distro_id();
 
     let info_lines: Vec<String> = config

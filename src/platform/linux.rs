@@ -11,6 +11,8 @@ const BATTERY_CAPACITY_DIR: &str = "/sys/class/power_supply/BAT0/capacity";
 const BATTERY_STATUS_DIR: &str = "/sys/class/power_supply/BAT0/status";
 const BATTERY_POWER_DRAW_DIR: &str = "/sys/class/power_supply/BAT0/power_now";
 const ROOT_DIR: &str = "/";
+const PCI_ID_MAIN_PATH: &str = "/usr/share/hwdata/pci.ids";
+const PCI_ID_FALLBACK_PATH: &str = "/usr/share/misc/pci.ids";
 
 pub fn get_distro_id() -> String {
     fs::read_to_string(Path::new("/etc/os-release"))
@@ -22,15 +24,22 @@ pub fn get_distro_id() -> String {
                 .and_then(|line| line.split('=').nth(1))
                 .map(|id| id.trim_matches('"').to_string())
         })
-        .unwrap_or_else(|| "unknown".to_string())
+        .unwrap_or_else(|| {
+            tracing::warn!("Failed to get distro_id");
+            "unknown".to_string()
+        })
 }
 
 /// Gets battery status as a tuple (Capacity, Status) if available
 pub fn get_battery() -> (String, String) {
-    let capacity =
-        get_trimmed(Path::new(BATTERY_CAPACITY_DIR)).unwrap_or_else(|_| "Unavailable".to_string());
-    let status =
-        get_trimmed(Path::new(BATTERY_STATUS_DIR)).unwrap_or_else(|_| "Unavailable".to_string());
+    let capacity = get_trimmed(Path::new(BATTERY_CAPACITY_DIR)).unwrap_or_else(|_| {
+        tracing::debug!("Failed to get battery capacity, possibly not a laptop");
+        "Unavailable".to_string()
+    });
+    let status = get_trimmed(Path::new(BATTERY_STATUS_DIR)).unwrap_or_else(|_| {
+        tracing::debug!("Failed to get battery status, possibly not a laptop");
+        "Unavailable".to_string()
+    });
     (capacity, status)
 }
 
@@ -38,8 +47,16 @@ pub fn get_battery() -> (String, String) {
 pub fn get_power_draw() -> u32 {
     match get_trimmed(Path::new(BATTERY_POWER_DRAW_DIR)) {
         // power_now contains the value in microwatts, we transform it in watts
-        Ok(content) => content.parse::<u32>().unwrap_or(0) / 1_000_000,
-        Err(_) => 0,
+        Ok(content) => {
+            content.parse::<u32>().unwrap_or({
+                tracing::error!("Error parsing u32 from battery draw value, defaulting to 0");
+                0
+            }) / 1_000_000
+        },
+        Err(_) => {
+            tracing::debug!("No power draw detected, possibly not a laptop");
+            0
+        },
     }
 }
 
@@ -60,13 +77,21 @@ pub fn get_gpu_ids() -> Option<(String, String)> {
     let fallback_gpu_path = Path::new("/sys/class/drm/card1/device");
 
     let vendor = std::fs::read_to_string(gpu_path.join("vendor"))
-        .or_else(|_| std::fs::read_to_string(fallback_gpu_path.join("vendor")))
+        .or_else(|_| {
+            #[rustfmt::skip]
+            tracing::debug!("Unable to parse GPU vendor info from {:?}, resorting to secondary path: {:?}", gpu_path, fallback_gpu_path);
+            std::fs::read_to_string(fallback_gpu_path.join("vendor"))
+        })
         .ok()?
         .trim()
         .to_string();
 
     let device = std::fs::read_to_string(gpu_path.join("device"))
-        .or_else(|_| std::fs::read_to_string(fallback_gpu_path.join("device")))
+        .or_else(|_| {
+            #[rustfmt::skip]
+            tracing::debug!("Unable to parse GPU device info from {:?}, resorting to secondary path: {:?}", gpu_path, fallback_gpu_path);
+            std::fs::read_to_string(fallback_gpu_path.join("device"))
+        })
         .ok()?
         .trim()
         .to_string();
@@ -80,18 +105,29 @@ fn get_gpu_subsystem_ids() -> Option<(String, String)> {
     let fallback_gpu_path = Path::new("/sys/class/drm/card1/device");
 
     let subsystem_vendor = std::fs::read_to_string(gpu_path.join("subsystem_vendor"))
-        .or_else(|_| std::fs::read_to_string(fallback_gpu_path.join("subsystem_vendor")))
+        .or_else(|_| {
+            #[rustfmt::skip]
+            tracing::debug!("Unable to parse GPU subsystem_vendor info from {:?}, resorting to secondary path: {:?}", gpu_path, fallback_gpu_path);
+            std::fs::read_to_string(fallback_gpu_path.join("subsystem_vendor"))
+        })
         .ok()
         .map(|value| value.trim().to_string());
 
     let subsystem_device = std::fs::read_to_string(gpu_path.join("subsystem_device"))
-        .or_else(|_| std::fs::read_to_string(fallback_gpu_path.join("subsystem_device")))
+        .or_else(|_| {
+            #[rustfmt::skip]
+            tracing::debug!("Unable to parse GPU subsystem_device info from {:?}, resorting to secondary path: {:?}", gpu_path, fallback_gpu_path);
+            std::fs::read_to_string(fallback_gpu_path.join("subsystem_device"))
+        })
         .ok()
         .map(|value| value.trim().to_string());
 
     match (subsystem_vendor, subsystem_device) {
         (Some(subvendor), Some(subdevice)) => Some((subvendor, subdevice)),
-        _ => None,
+        _ => {
+            tracing::warn!("Unable to parse subsystem_vendor or subsystem_device, skipping");
+            None
+        },
     }
 }
 
@@ -110,12 +146,17 @@ pub fn get_gpu_name(cli: &Cli) -> Option<String> {
         if cache.gpu_device_id == device_id && cache.gpu_vendor_id == vendor_id {
             return Some(cache.gpu_name_pretty);
         } else {
+            #[rustfmt::skip]
+            tracing::warn!("GPU ID values do not match cached values or cached values are not present, creating new cache file");
             let _ = create_cache();
         }
     }
 
-    let pci_ids = std::fs::read_to_string("/usr/share/hwdata/pci.ids")
-        .or_else(|_| std::fs::read_to_string("/usr/share/misc/pci.ids"))
+    #[rustfmt::skip]
+    let pci_ids = std::fs::read_to_string(PCI_ID_MAIN_PATH)
+        .inspect_err(|e| tracing::warn!("Error reading {PCI_ID_MAIN_PATH}: {:?}. Trying fallback path", e))
+        .or_else(|_| std::fs::read_to_string(PCI_ID_FALLBACK_PATH))
+        .inspect_err(|e| tracing::warn!("Error reading {PCI_ID_FALLBACK_PATH}: {:?}. Skipping GPU name parsing", e))
         .ok()?;
 
     let mut current_vendor = None;
@@ -141,14 +182,14 @@ pub fn get_gpu_name(cli: &Cli) -> Option<String> {
             if let Some(device) = line.split_whitespace().next() {
                 if device.eq_ignore_ascii_case(&device_id) {
                     let name = line.split_once("  ")?.1.trim();
+                    tracing::debug!("Found GPU device: {:?}", name);
                     current_device = Some(name);
                 } else {
                     current_device = None;
                 }
             }
         } else if current_vendor.is_some() && current_device.is_some() && line.starts_with("\t\t") {
-            // Even though clippy is complaining about it, this already long if statement should not
-            // be collapsed. This comment prevents that
+            // don't collapse
             if let Some((target_subvendor, target_subdevice)) = subsystem_ids.as_ref() {
                 let trimmed = line.trim();
                 let mut parts = trimmed.split_whitespace();

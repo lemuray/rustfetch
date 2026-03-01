@@ -40,26 +40,29 @@ fn get_default_values() -> Cache {
 pub fn get_cache_path() -> PathBuf {
     dirs::cache_dir()
         .map(|p| p.join("rustfetch/cache.toml"))
-        .unwrap_or_else(|| PathBuf::from("cache.toml")) // as with config.rs, the fallback is the current directory
+        .unwrap_or_else(|| {
+            #[rustfmt::skip]
+            tracing::warn!("Unable to access the default cache directory, defaulting to current directory");
+            PathBuf::from("cache.toml")
+        }) // as with config.rs, the fallback is the current directory
 }
 
 pub fn create_cache() -> Result<(), Box<dyn std::error::Error>> {
     let cache_path = get_cache_path();
 
     if let Some(parent) = cache_path.parent() {
-        std::fs::create_dir_all(parent)?;
+        std::fs::create_dir_all(parent)
+            .inspect_err(|e| tracing::error!("Unable to create cache file: {:?}", e))?;
     }
 
     let cache_defaults = get_default_values();
-    let toml_string = toml::to_string(&cache_defaults)?;
+    let toml_string = toml::to_string(&cache_defaults)
+        .inspect_err(|e| tracing::error!("Error parsing string from TOML file: {:?}", e))?;
 
-    std::fs::write(&cache_path, toml_string)?;
+    std::fs::write(&cache_path, toml_string)
+        .inspect_err(|e| tracing::error!("Error writing cache values to file: {:?}", e))?;
 
-    // apparently parsing a pathbuf to string needs 3 methods lol
-    eprintln!(
-        "Created cache at {}",
-        cache_path.into_os_string().into_string().unwrap_or(String::from(""))
-    );
+    tracing::info!("Created cache at {:?}", cache_path);
 
     Ok(())
 }
@@ -69,7 +72,10 @@ pub fn get_cache(cli: &Cli) -> Result<Cache, Box<dyn std::error::Error>> {
     if std::fs::read_to_string(&cache_path).is_err() || cli.clear_cache {
         create_cache()?;
     }
-    let contents = std::fs::read_to_string(&cache_path)?;
-    let cache: Cache = toml::from_str(&contents)?;
+    let contents = std::fs::read_to_string(&cache_path)
+        .inspect_err(|e| tracing::error!("Error reading cache file: {:?}", e))?;
+    let cache: Cache = toml::from_str(&contents)
+        .inspect_err(|e| tracing::error!("Error parsing Cache struct from TOML string: {:?}", e))?;
+
     Ok(cache)
 }

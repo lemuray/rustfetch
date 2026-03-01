@@ -2,6 +2,10 @@
 
 use std::{fs, path::Path};
 
+use directories::ProjectDirs;
+use tracing_appender::rolling;
+use tracing_subscriber::fmt;
+
 const KIB_IN_MB: f64 = 1024.0;
 const KIB_IN_GB: f64 = 1024.0 * 1024.0; // We are declaring it as f64 as we'll use it as a float in this file to minimize casting
 
@@ -10,11 +14,14 @@ const KIB_IN_GB: f64 = 1024.0 * 1024.0; // We are declaring it as f64 as we'll u
 /// # Errors
 /// Returns an error if the file cannot be read or if the trimmed content is empty
 pub fn get_trimmed(path: &Path) -> Result<String, String> {
-    let content = fs::read_to_string(path).map_err(|e| format!("Failed to read file: {}", e))?;
+    let content = fs::read_to_string(path)
+        .inspect_err(|e| tracing::warn!("Failed to read file {:?}: {}", path, e))
+        .map_err(|e| format!("Failed to read file: {}", e))?;
 
     let trimmed = content.trim().to_string();
 
     if trimmed.is_empty() {
+        tracing::warn!("get_trimmed function tried to access {:?}, which is empty", path);
         Err("File content is empty".to_string())
     } else {
         Ok(trimmed)
@@ -27,6 +34,7 @@ pub fn get_trimmed(path: &Path) -> Result<String, String> {
 /// For example: 15_369.0 KiB will return "15 MB"
 pub fn convert_to_bytes(memory_kib: f64) -> Result<String, String> {
     if memory_kib < 0.0 {
+        tracing::warn!("Memory given to the convert_to_bytes function was negative, skipping...");
         return Err("Memory value cannot be negative".to_string());
     }
 
@@ -49,9 +57,13 @@ pub fn convert_to_bytes(memory_kib: f64) -> Result<String, String> {
 /// Gets the percentage as a rounded value considering a part and a total
 pub fn get_percentage_from_part(part: f64, total: f64) -> Result<u64, String> {
     if part < 0.0 || total < 0.0 {
+        tracing::warn!(
+            "Total or part were negative in the get_percentage_from_part function, skipping..."
+        );
         return Err("Part or total cannot be negative".to_string());
     }
     if total == 0.0 {
+        tracing::error!("Division by zero was avoided in get_percentage_from_part, total was 0");
         return Err("Division by zero error avoided: total cannot be 0".to_string());
     }
     Ok((part / total * 100.0).floor() as u64)
@@ -87,6 +99,7 @@ pub fn format_hex(id: &str) -> String {
 pub fn strip_gpu_name(gpu_name: &str) -> String {
     let mut end_pos = gpu_name.len();
     if let Some(parentheses_pos) = gpu_name.find("(") {
+        tracing::info!("CPU name contains '(', stripping additional info from GPU name");
         end_pos = end_pos.min(parentheses_pos);
     }
 
@@ -99,9 +112,13 @@ pub fn strip_gpu_name(gpu_name: &str) -> String {
 pub fn strip_cpu_name(full_name: &str) -> String {
     let mut end_pos = full_name.len();
     if let Some(pos) = full_name.find(" with ") {
+        tracing::info!(
+            "CPU name contains keyword ' with ', stripping additional info from CPU name"
+        );
         end_pos = end_pos.min(pos);
     }
     if let Some(pos) = full_name.find(" @ ") {
+        tracing::info!("CPU name contains keyword ' @ ', stripping additional info from CPU name");
         end_pos = end_pos.min(pos);
     }
 
@@ -109,8 +126,27 @@ pub fn strip_cpu_name(full_name: &str) -> String {
     if let Some(pos) = full_name.find("-Core")
         && let Some(space_pos) = full_name[..pos].rfind(' ')
     {
+        tracing::info!(
+            "CPU name contains keyword '-Core', stripping additional info from CPU name"
+        );
         end_pos = end_pos.min(space_pos);
     }
 
     full_name[..end_pos].trim().to_string()
+}
+
+pub fn init_logging() -> Result<(), Box<dyn std::error::Error>> {
+    let proj_dirs =
+        ProjectDirs::from("com", "lemuray", "rustfetch").expect("Could not determine project dirs");
+
+    let log_dir = proj_dirs.state_dir().unwrap_or_else(|| Path::new("."));
+
+    std::fs::create_dir_all(log_dir).ok();
+
+    let file_appender = rolling::daily(log_dir, "app.log");
+    let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
+
+    fmt().with_writer(non_blocking).init();
+
+    Ok(())
 }

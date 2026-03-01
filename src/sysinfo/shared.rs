@@ -76,7 +76,10 @@ pub fn get_directory_usage(directory: &str) -> (u64, u64, u64) {
         .or_else(|| disks.iter().find(|disk| disk.mount_point() == std::path::Path::new("/")))
     {
         Some(disk) => disk,
-        _ => return (0, 0, 0),
+        _ => {
+            tracing::warn!("Unable to gather root directory usage");
+            return (0, 0, 0);
+        },
     };
 
     let total = disk.total_space();
@@ -90,12 +93,18 @@ pub fn get_directory_usage(directory: &str) -> (u64, u64, u64) {
 
 /// Gets os name on any given system
 pub fn get_os_name() -> String {
-    System::name().unwrap_or_else(|| String::from("Unknown"))
+    System::name().unwrap_or_else(|| {
+        tracing::warn!("Unable to fetch OS name");
+        String::from("Unknown")
+    })
 }
 
 /// Gets kernel version on any given system
 pub fn get_kernel_version() -> String {
-    System::kernel_version().unwrap_or_else(|| String::from("Unknown"))
+    System::kernel_version().unwrap_or_else(|| {
+        tracing::warn!("Unable to fetch kernel version");
+        String::from("Unknown")
+    })
 }
 
 /// Gets cpu name on any given system, filters out any comments such as x-core processor
@@ -106,12 +115,18 @@ pub fn get_cpu_name(sys: &System) -> String {
             let full_name = cpu.brand();
             strip_cpu_name(full_name)
         })
-        .unwrap_or_else(|| String::from("Unknown CPU"))
+        .unwrap_or_else(|| {
+            tracing::warn!("Unable to fetch CPU name");
+            String::from("Unknown CPU")
+        })
 }
 
 /// Gets CPU frequency in MHz
 pub fn get_cpu_frequency(sys: &System) -> u64 {
-    sys.cpus().first().map(|cpu| cpu.frequency()).unwrap_or_else(|| 0)
+    sys.cpus().first().map(|cpu| cpu.frequency()).unwrap_or_else(|| {
+        tracing::warn!("Unable to fetch CPU frequency");
+        0
+    })
 }
 
 /// Gets the pretty version of the GPU through wgpu, this function is really slow (~45ms), so its
@@ -125,15 +140,18 @@ pub fn get_gpu_name_pretty() -> Option<String> {
 
     if let Some(adapter) = adapters.into_iter().next() {
         let gpu_name = adapter.get_info().name;
-        return Some(strip_gpu_name(&gpu_name));
+        Some(strip_gpu_name(&gpu_name))
+    } else {
+        tracing::warn!("No GPU adapter found for WGPU");
+        None
     }
-
-    None
 }
 
 /// Gets the screen resolution and returns it as (width, height)
 pub fn get_screen_resolution() -> Option<(u64, u64)> {
-    let displays = DisplayInfo::all().ok()?;
+    let displays = DisplayInfo::all()
+        .inspect_err(|e| tracing::warn!("Error fetching displays: {:?}", e))
+        .ok()?;
     let display = displays.first()?;
     Some((display.width as u64, display.height as u64))
 }
@@ -141,35 +159,57 @@ pub fn get_screen_resolution() -> Option<(u64, u64)> {
 pub fn get_screen_refresh_rate() -> Option<u64> {
     // repeated variable between this and get_screen_resolution, we can pass a reference if display
     // is true later on
-    let displays = DisplayInfo::all().ok()?;
+    let displays = DisplayInfo::all()
+        .inspect_err(|e| tracing::warn!("Error fetching displays: {:?}", e))
+        .ok()?;
     let display = displays.first()?;
 
     (display.frequency > 0.0).then_some(display.frequency as u64)
 }
 
 pub fn get_host_name() -> Option<String> {
-    System::host_name()
+    if let Some(host) = System::host_name() {
+        Some(host)
+    } else {
+        tracing::warn!("Unable to get system host name");
+        None
+    }
 }
 
 pub fn get_username() -> String {
-    std::env::var("USER").unwrap_or_else(|_| "unknown".to_string())
+    std::env::var("USER").unwrap_or_else(|_| {
+        tracing::warn!("Unable to get system username");
+        "unknown".to_string()
+    })
 }
 
 pub fn get_de() -> Option<String> {
-    std::env::var("XDG_CURRENT_DESKTOP").ok()
+    if let Ok(de) = std::env::var("XDG_CURRENT_DESKTOP") {
+        Some(de)
+    } else {
+        tracing::warn!("Unable to get desktop environment name");
+        None
+    }
 }
 
 pub fn get_display_system() -> Option<String> {
     match std::env::var("XDG_SESSION_TYPE").ok().as_deref() {
         Some("wayland") => Some(String::from("Wayland")),
         Some("x11") => Some(String::from("x11")),
-        _ => None,
+        _ => {
+            tracing::warn!("Unknown display system, skipping");
+            None
+        },
     }
 }
 
 pub fn get_shell() -> Result<(String, String), std::io::Error> {
-    let shell = Shell::detect()?;
+    let shell =
+        Shell::detect().inspect_err(|e| tracing::warn!("Error detecting shell: {:?}", e))?;
     let name = shell.name().to_string();
-    let version = shell.version().unwrap_or_else(|| "unknown".to_string());
+    let version = shell.version().unwrap_or_else(|| {
+        tracing::warn!("Unable to fetch shell version");
+        "unknown".to_string()
+    });
     Ok((name, version))
 }

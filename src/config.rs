@@ -115,9 +115,10 @@ power_draw = false
 /// Gets the default config path for rustfetch. The default path is ~/.config/rustfetch/config.toml
 /// or ./rustfetch.toml as fallback
 pub fn get_default_path() -> PathBuf {
-    dirs::config_dir()
-        .map(|p| p.join("rustfetch/config.toml"))
-        .unwrap_or_else(|| PathBuf::from("rustfetch.toml")) // fallback = current directory
+    dirs::config_dir().map(|p| p.join("rustfetch/config.toml")).unwrap_or_else(|| {
+        tracing::warn!("Unable to use default config directory, resorting to current directory");
+        PathBuf::from("rustfetch.toml")
+    })
 }
 
 /// Creates the config file with default options and comments
@@ -126,16 +127,20 @@ fn create_config_file(config_path: &PathBuf) -> Config {
 
     // If parent directory does not exist, create it
     if let Some(parent) = config_path.parent() {
+        tracing::info!("Parent config directory not present, creating...");
         let _ = std::fs::create_dir_all(parent);
     }
 
     let toml_string = get_config_template();
 
     if let Err(e) = std::fs::write(config_path, toml_string) {
-        eprintln!("Warning: Could not create config file at {:?}: {}", config_path, e);
-        eprintln!("Using default configuration in memory");
+        tracing::warn!(
+            "Could not create config file at {:?}: {:?}. Using default configuration in memory",
+            config_path,
+            e
+        );
     } else {
-        println!("Created default config file at:  {:?}", config_path);
+        tracing::info!("Created default config file at: {:?}", config_path);
     }
 
     default_config
@@ -151,8 +156,7 @@ pub fn load_config(cli: &Cli) -> Config {
     if let Ok(content) = std::fs::read_to_string(&config_path) {
         // If parsing fails, use defaults instead
         toml::from_str(&content).unwrap_or_else(|e| {
-            eprintln!("Warning: Failed to parse config file: {}", e);
-            eprintln!("Using default configuration");
+            tracing::warn!("Failed to parse config file: {:?}. Using default configuration", e);
             Config::default()
         })
     } else {

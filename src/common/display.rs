@@ -13,7 +13,7 @@ use crate::{
 fn color_percentage(percentage: u64) -> ColoredString {
     if percentage < 40 {
         format!("{}%", percentage).green()
-    } else if (40..80).contains(&percentage) {
+    } else if (40 .. 80).contains(&percentage) {
         format!("{}%", percentage).yellow()
     } else {
         format!("{}%", percentage).red()
@@ -23,7 +23,7 @@ fn color_percentage(percentage: u64) -> ColoredString {
 fn color_percentage_inverse(percentage: f64) -> ColoredString {
     if percentage < 30.0 {
         format!("{}%", percentage).red()
-    } else if (30.0..70.0).contains(&percentage) {
+    } else if (30.0 .. 70.0).contains(&percentage) {
         format!("{}%", percentage).yellow()
     } else {
         format!("{}%", percentage).green()
@@ -89,6 +89,7 @@ pub fn display_battery() -> Option<String> {
             status
         ))
     } else {
+        tracing::debug!("No battery info detected for device, possibly not a laptop");
         None
     }
 }
@@ -97,6 +98,7 @@ pub fn display_power_draw() -> Option<String> {
     if power_draw != 0 {
         Some(format!("{} {}W", "Power Draw:".bold(), power_draw))
     } else {
+        tracing::debug!("No power draw detected for device, possibly not a laptop");
         None
     }
 }
@@ -119,6 +121,10 @@ pub fn display_gpu_name(cli: &Cli) -> Option<String> {
 pub fn display_screen(config: &Config) -> Option<String> {
     if !config.display.resolution && !config.display.refresh_rate {
         // I'm sure theres a better way to do this, but this works as well
+        tracing::warn!(
+            "The screen option was active, but both its subparts were deactivated. Skipping \
+             screen info fetching..."
+        );
         return None;
     }
 
@@ -128,6 +134,7 @@ pub fn display_screen(config: &Config) -> Option<String> {
     {
         resolution = format!("{}x{}", width, height);
     } else {
+        tracing::warn!("No resolution found for monitor");
         resolution = String::from("");
     }
 
@@ -137,12 +144,17 @@ pub fn display_screen(config: &Config) -> Option<String> {
     {
         refresh_rate = format!("@ {}Hz", rr);
     } else {
+        tracing::warn!("No refresh rate found for monitor");
         refresh_rate = String::from("");
     }
 
     if resolution.is_empty() && refresh_rate.is_empty() {
         // if both are empty, i.e. if the system is headless
         // or no screen is detected return None
+        tracing::debug!(
+            "No resolution and refresh rate found for monitor, possibly running a headless setup. \
+             Skipping printing monitor info..."
+        );
         return None;
     }
 
@@ -186,6 +198,7 @@ pub fn display_shell() -> Option<String> {
     if let Ok((shell, version)) = get_shell() {
         Some(format!("{} {} {}", "Shell:".bold(), shell, version))
     } else {
+        tracing::warn!("Unable to get shell info, skipping printing it...");
         None
     }
 }

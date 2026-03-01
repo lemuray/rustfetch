@@ -1,5 +1,4 @@
-use crate::sysinfo::*;
-use crate::cli::Cli;
+use crate::{cli::Cli, sysinfo::*};
 
 // Same as before
 pub fn get_power_draw() -> i32 {

@@ -3,7 +3,6 @@
 use std::io::{BufWriter, Write};
 
 use colored::*;
-
 use unicode_width::*;
 
 use crate::cli::Cli;
@@ -28,6 +27,7 @@ pub struct ParsedLine {
 
 pub fn get_logo_style(logo: Vec<String>) -> Option<Vec<ParsedLine>> {
     if logo.is_empty() {
+        tracing::warn!("Logo is empty, skipping printing...");
         return None;
     }
 
@@ -94,6 +94,7 @@ pub fn get_logo_style(logo: Vec<String>) -> Option<Vec<ParsedLine>> {
         lines.push(line);
     }
 
+    tracing::info!("Succesfully parsed logo");
     Some(lines)
 }
 
@@ -124,6 +125,10 @@ pub fn get_logo_lines(distro_id: &str, cli: &Cli) -> Vec<String> {
             "macos" => include_str!("../../ascii/small/macos.txt"),
             "nixos" => include_str!("../../ascii/small/nixos.txt"),
             _ => {
+                tracing::warn!(
+                    "--small-logo flag active but no small logo found for user's distro, \
+                     resorting to bigger ones..."
+                );
                 found = false;
                 ""
             },
@@ -153,7 +158,10 @@ pub fn get_logo_lines(distro_id: &str, cli: &Cli) -> Vec<String> {
             "kubuntu" => include_str!("../../ascii/big/kubuntu.txt"),
             "truenas-scale" => include_str!("../../ascii/big/truenas-scale.txt"),
             "nixos" => include_str!("../../ascii/big/nixos.txt"),
-            _ => "",
+            _ => {
+                tracing::warn!("No logo found for user's distro");
+                ""
+            },
         };
     }
 
@@ -203,6 +211,7 @@ pub fn print_logo(
 
     if logo_lines.is_empty() {
         for line in info_lines {
+            tracing::warn!("Logo lines are empty, printing the information only");
             writeln!(handle, "{}", line)?;
         }
     } else {
@@ -215,7 +224,7 @@ pub fn print_logo(
             .max()
             .unwrap_or(0);
 
-        for i in 0..max_lines {
+        for i in 0 .. max_lines {
             if i < logo_lines.len() {
                 for colored_segment in color_logo_line(&logo_lines[i]) {
                     write!(handle, "{}", colored_segment)?;
@@ -237,6 +246,7 @@ pub fn print_logo(
                 writeln!(handle)?;
             }
         }
+        tracing::info!("Succesfully printed logo and info");
     }
 
     handle.flush()?;
