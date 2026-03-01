@@ -25,30 +25,28 @@ pub fn create_system(config: &Config) -> System {
 
 /// Gets RAM usage values and returns them as a formatted String alongside the usage percentage as
 /// unsigned int. Returns 0 on all values in case any error occurs
-pub fn get_ram_usage(sys: &System) -> (String, String, u64) {
+pub fn get_ram_usage(sys: &System) -> Option<(String, String, u64)> {
     let total_kib = (sys.total_memory() / KIB_TO_MB) as f64;
     let used_kib = (sys.used_memory() / KIB_TO_MB) as f64;
     let percentage = get_percentage_from_part(used_kib, total_kib).unwrap_or(0);
 
-    (
-        convert_to_bytes(total_kib).unwrap_or(String::from("0 KiB")),
-        convert_to_bytes(used_kib).unwrap_or(String::from("0 KiB")),
-        percentage,
-    )
+    let total = convert_to_bytes(total_kib).ok()?;
+    let used = convert_to_bytes(used_kib).ok()?;
+
+    Some((total, used, percentage))
 }
 
 /// Gets swap usage values and returns them as a formatted String alongside the usage percentage as
 /// unsigned int. Returns 0 on all values in case any error occurs
-pub fn get_swap_usage(sys: &System) -> (String, String, u64) {
+pub fn get_swap_usage(sys: &System) -> Option<(String, String, u64)> {
     let total_kib = (sys.total_swap() / KIB_TO_MB) as f64;
     let used_kib = (sys.used_swap() / KIB_TO_MB) as f64;
     let percentage = get_percentage_from_part(used_kib, total_kib).unwrap_or(0);
 
-    (
-        convert_to_bytes(total_kib).unwrap_or(String::from("0 KiB")),
-        convert_to_bytes(used_kib).unwrap_or(String::from("0 KiB")),
-        percentage,
-    )
+    let total = convert_to_bytes(total_kib).ok()?;
+    let used = convert_to_bytes(used_kib).ok()?;
+
+    Some((total, used, percentage))
 }
 
 /// Gets system uptime in HHh MMm SSs format
@@ -67,7 +65,7 @@ pub fn get_uptime() -> String {
 }
 
 /// Gets disk (root) usage and returns in GB and percentage (floored)
-pub fn get_directory_usage(directory: &str) -> (u64, u64, u64) {
+pub fn get_directory_usage(directory: &str) -> Option<(u64, u64, u64)> {
     let disks = Disks::new_with_refreshed_list();
 
     let disk = match disks
@@ -77,8 +75,8 @@ pub fn get_directory_usage(directory: &str) -> (u64, u64, u64) {
     {
         Some(disk) => disk,
         _ => {
-            tracing::warn!("Unable to gather root directory usage");
-            return (0, 0, 0);
+            tracing::warn!("Unable to usage for directory {:?}", directory);
+            return None;
         },
     };
 
@@ -88,44 +86,44 @@ pub fn get_directory_usage(directory: &str) -> (u64, u64, u64) {
 
     let percentage = get_percentage_from_part(used as f64, total as f64).unwrap_or(0);
 
-    (total / BYTES_TO_GB, used / BYTES_TO_GB, percentage)
+    Some((total / BYTES_TO_GB, used / BYTES_TO_GB, percentage))
 }
 
 /// Gets os name on any given system
-pub fn get_os_name() -> String {
-    System::name().unwrap_or_else(|| {
+pub fn get_os_name() -> Option<String> {
+    System::name().or_else(|| {
         tracing::warn!("Unable to fetch OS name");
-        String::from("Unknown")
+        None
     })
 }
 
 /// Gets kernel version on any given system
-pub fn get_kernel_version() -> String {
-    System::kernel_version().unwrap_or_else(|| {
+pub fn get_kernel_version() -> Option<String> {
+    System::kernel_version().or_else(|| {
         tracing::warn!("Unable to fetch kernel version");
-        String::from("Unknown")
+        None
     })
 }
 
 /// Gets cpu name on any given system, filters out any comments such as x-core processor
-pub fn get_cpu_name(sys: &System) -> String {
+pub fn get_cpu_name(sys: &System) -> Option<String> {
     sys.cpus()
         .first()
         .map(|cpu| {
             let full_name = cpu.brand();
             strip_cpu_name(full_name)
         })
-        .unwrap_or_else(|| {
+        .or_else(|| {
             tracing::warn!("Unable to fetch CPU name");
-            String::from("Unknown CPU")
+            None
         })
 }
 
 /// Gets CPU frequency in MHz
-pub fn get_cpu_frequency(sys: &System) -> u64 {
-    sys.cpus().first().map(|cpu| cpu.frequency()).unwrap_or_else(|| {
+pub fn get_cpu_frequency(sys: &System) -> Option<u64> {
+    sys.cpus().first().map(|cpu| cpu.frequency()).or_else(|| {
         tracing::warn!("Unable to fetch CPU frequency");
-        0
+        None
     })
 }
 

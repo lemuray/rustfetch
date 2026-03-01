@@ -25,7 +25,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     let sys = sysinfo::create_system(&config);
 
-    init_logging();
+    let _ = init_logging();
 
     let distro_id = platform::get_distro_id();
 
@@ -37,15 +37,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .flatten()
         .chain(
             vec![
-                config.display.os.then(display_os),
-                config.display.kernel.then(display_kernel),
+                config.display.os.then(display_os).flatten(),
+                config.display.kernel.then(display_kernel).flatten(),
                 config.display.kernel.then(display_shell).flatten(),
                 config.display.de.then(display_de).flatten(),
-                config.display.cpu.then(|| display_cpu(&sys, &config)),
+                config.display.cpu.then(|| display_cpu(&sys, &config)).flatten(),
                 #[cfg(target_os = "linux")] // yet to be implemented, possible
                 config.display.gpu.then(|| display_gpu_name(&cli)).flatten(),
                 config.display.screen.then(|| display_screen(&config)).flatten(),
-                config.display.ram.then(|| display_ram_usage(&sys)),
+                config.display.ram.then(|| display_ram_usage(&sys)).flatten(),
                 config.display.swap.then(|| display_swap_usage(&sys)),
                 config.display.uptime.then(display_uptime),
                 config.display.date.then(display_date),
@@ -54,7 +54,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 config.display.battery.then(display_battery).flatten(),
                 #[cfg(target_os = "linux")]
                 config.display.power_draw.then(display_power_draw).flatten(),
-                config.display.disk.then(display_disk_usage),
+                config.display.disk.then(display_disk_usage).flatten(),
             ]
             .into_iter()
             .flatten(),

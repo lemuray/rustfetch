@@ -4,7 +4,7 @@ use sysinfo::System;
 
 use crate::{
     cli::Cli,
-    common::{extract_numeric_value, round_to_two_decimal},
+    common::round_to_two_decimal,
     config::Config,
     platform::{self, get_power_draw},
     sysinfo::*,
@@ -13,7 +13,7 @@ use crate::{
 fn color_percentage(percentage: u64) -> ColoredString {
     if percentage < 40 {
         format!("{}%", percentage).green()
-    } else if (40 .. 80).contains(&percentage) {
+    } else if (40..80).contains(&percentage) {
         format!("{}%", percentage).yellow()
     } else {
         format!("{}%", percentage).red()
@@ -23,55 +23,66 @@ fn color_percentage(percentage: u64) -> ColoredString {
 fn color_percentage_inverse(percentage: f64) -> ColoredString {
     if percentage < 30.0 {
         format!("{}%", percentage).red()
-    } else if (30.0 .. 70.0).contains(&percentage) {
+    } else if (30.0..70.0).contains(&percentage) {
         format!("{}%", percentage).yellow()
     } else {
         format!("{}%", percentage).green()
     }
 }
 
-pub fn display_os() -> String {
-    format!(
+pub fn display_os() -> Option<String> {
+    Some(format!(
         "{} {} ({})",
         "OS:".bold(),
-        get_os_name(),
+        get_os_name()?,
         std::env::consts::ARCH // CPU Architecture the program was compiled for
-    )
+    ))
 }
 
-pub fn display_kernel() -> String {
-    format!("{} {}", "Kernel:".bold(), platform::format_kernel_version())
+pub fn display_kernel() -> Option<String> {
+    let kernel = platform::format_kernel_version()?;
+    Some(format!("{} {}", "Kernel:".bold(), kernel))
 }
 
-pub fn display_cpu(sys: &System, config: &Config) -> String {
-    let cpu_name = get_cpu_name(sys);
-
-    let cpu_frequency;
-    if config.display.cpu_frequency {
-        let frequency = get_cpu_frequency(sys);
-        if frequency >= 1000 {
-            cpu_frequency = format!(" @ {} GHz ", round_to_two_decimal(frequency as f64 / 1000.0))
-        } else {
-            cpu_frequency = format!(" @ {} MHz ", frequency)
-        }
-    } else {
-        cpu_frequency = String::from("");
+pub fn display_cpu(sys: &System, config: &Config) -> Option<String> {
+    if !config.display.cpu_frequency {
+        return None;
     }
 
-    format!("{} {}{}", "CPU:".bold(), cpu_name, cpu_frequency)
+    let cpu_name = get_cpu_name(sys)?;
+    let frequency = get_cpu_frequency(sys)?;
+
+    let cpu_frequency = if frequency >= 1000 {
+        format!(" @ {} GHz ", round_to_two_decimal(frequency as f64 / 1000.0))
+    } else {
+        format!(" @ {} MHz ", frequency)
+    };
+
+    Some(format!("{} {}{}", "CPU:".bold(), cpu_name, cpu_frequency))
 }
 
-pub fn display_ram_usage(sys: &System) -> String {
-    let (total, used, percentage) = get_ram_usage(sys);
-    format!("{} {} / {} ({})", "RAM:".bold(), used, total, color_percentage(percentage))
+pub fn display_ram_usage(sys: &System) -> Option<String> {
+    let (total, used, percentage) = get_ram_usage(sys)?;
+    Some(format!(
+        "{} {} / {} ({})",
+        "RAM:".bold(),
+        used,
+        total,
+        color_percentage(percentage)
+    ))
 }
 
 pub fn display_swap_usage(sys: &System) -> String {
-    let (total, used, percentage) = get_swap_usage(sys);
-    if extract_numeric_value(&total).is_ok_and(|v| v == 0.0) {
-        format!("{} Disabled", "Swap:".bold())
+    if let Some(values) = get_swap_usage(sys) {
+        format!(
+            "{} {} / {} ({})",
+            "Swap:".bold(),
+            values.1,
+            values.0,
+            color_percentage(values.2)
+        )
     } else {
-        format!("{} {} / {} ({})", "Swap:".bold(), used, total, color_percentage(percentage))
+        format!("{} Disabled", "Swap:".bold())
     }
 }
 
@@ -103,15 +114,15 @@ pub fn display_power_draw() -> Option<String> {
     }
 }
 
-pub fn display_disk_usage() -> String {
-    let (total, used, percentage) = platform::get_disk_usage();
-    format!(
+pub fn display_disk_usage() -> Option<String> {
+    let (total, used, percentage) = platform::get_disk_usage()?;
+    Some(format!(
         "{} {}GB / {}GB ({})",
         "Disk (/):".bold(), // FIXME: Shows "/" dir statically
         used,
         total,
         color_percentage(percentage)
-    )
+    ))
 }
 
 pub fn display_gpu_name(cli: &Cli) -> Option<String> {

@@ -60,13 +60,13 @@ pub fn get_power_draw() -> u32 {
     }
 }
 
-pub fn get_disk_usage() -> (u64, u64, u64) {
+pub fn get_disk_usage() -> Option<(u64, u64, u64)> {
     // Linux root directory
     get_directory_usage(ROOT_DIR)
 }
 
-pub fn format_kernel_version() -> String {
-    format!("Linux {}", get_kernel_version())
+pub fn format_kernel_version() -> Option<String> {
+    Some(format!("Linux {}", get_kernel_version()?))
 }
 
 /// Gets gpu vendor and device ids and returns them as a tuple: (vendor, device)
