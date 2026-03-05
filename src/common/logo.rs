@@ -25,10 +25,12 @@ pub struct ParsedLine {
     segments: Vec<Segment>,
 }
 
-pub fn get_logo_style(logo: Vec<String>) -> Option<Vec<ParsedLine>> {
+pub fn get_logo_style(logo: Vec<String>) -> Vec<ParsedLine> {
     if logo.is_empty() {
         tracing::warn!("Logo is empty, skipping printing...");
-        return None;
+        // this could return none, but in this case an empty
+        // vector is easier to handle
+        return Vec::new()
     }
 
     let mut lines: Vec<ParsedLine> = Vec::new();
@@ -95,7 +97,7 @@ pub fn get_logo_style(logo: Vec<String>) -> Option<Vec<ParsedLine>> {
     }
 
     tracing::info!("Succesfully parsed logo");
-    Some(lines)
+    lines
 }
 
 /// Gets the lines logos in a vector and returns them
@@ -224,7 +226,7 @@ pub fn print_logo(
             .max()
             .unwrap_or(0);
 
-        for i in 0 .. max_lines {
+        for i in 0..max_lines {
             if i < logo_lines.len() {
                 for colored_segment in color_logo_line(&logo_lines[i]) {
                     write!(handle, "{}", colored_segment)?;
