@@ -1,8 +1,8 @@
 use crate::{cli::Cli, sysinfo::*};
 
 // Same as before
-pub fn get_power_draw() -> i32 {
-    0
+pub fn get_power_draw() -> Option<u32> {
+    None
 }
 
 pub fn get_disk_usage() -> (u64, u64, u64) {
@@ -21,14 +21,14 @@ pub fn get_distro_id() -> String {
 // the following functions will never run since they're for linux only features but the compiler
 // complains if they're not in macos
 pub fn get_battery() -> (String, String) {
-    (String::from("Null"), String::from("Null"))
+    None
 }
 pub fn get_gpu_ids() -> Option<(String, String)> {
-    Some((String::from("Null"), String::from("Null")))
+    None
 }
 pub fn get_gpu_subsystem_ids() -> Option<(String, String)> {
-    Some((String::from("Null"), String::from("Null")))
+    None
 }
 pub fn get_gpu_name(_cli: &Cli) -> Option<String> {
-    Some(String::from("Null"))
+    None
 }

@@ -27,8 +27,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let _ = init_logging();
 
-    let distro_id = platform::get_distro_id();
-
     let info_lines: Vec<String> = config
         .display
         .identifier
@@ -61,7 +59,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .collect();
 
-    let logo_lines = get_logo_lines(&distro_id, &cli);
+    let distro_id = platform::get_distro_id();
+    let logo_lines = get_logo_lines(distro_id.as_deref().unwrap_or(""), &cli);
     let parsed_lines = get_logo_style(logo_lines);
 
     print_logo(parsed_lines, info_lines, &cli)?;

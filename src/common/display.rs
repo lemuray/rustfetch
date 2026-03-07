@@ -91,27 +91,25 @@ pub fn display_uptime() -> String {
 }
 
 pub fn display_battery() -> Option<String> {
-    let (capacity, status) = platform::get_battery();
-    if capacity != "Unavailable" && status != "Unavailable" {
-        Some(format!(
-            "{} {} ({})",
-            "Battery:".bold(),
-            color_percentage_inverse(capacity.parse::<f64>().unwrap_or(0.0)),
-            status
-        ))
-    } else {
-        tracing::debug!("No battery info detected for device, possibly not a laptop");
-        None
-    }
+    let (capacity, status) = platform::get_battery()?;
+    Some(format!(
+        "{} {} ({})",
+        "Battery:".bold(),
+        color_percentage_inverse(
+            capacity
+                .parse::<f64>()
+                .inspect_err(|e| tracing::warn!(
+                    "Error parsing floating point value from battery capacity as string: {:?}",
+                    e
+                ))
+                .ok()?
+        ),
+        status
+    ))
 }
 pub fn display_power_draw() -> Option<String> {
-    let power_draw = get_power_draw();
-    if power_draw != 0 {
-        Some(format!("{} {}W", "Power Draw:".bold(), power_draw))
-    } else {
-        tracing::debug!("No power draw detected for device, possibly not a laptop");
-        None
-    }
+    let power_draw = get_power_draw()?;
+    Some(format!("{} {}W", "Power Draw:".bold(), power_draw))
 }
 
 pub fn display_disk_usage() -> Option<String> {

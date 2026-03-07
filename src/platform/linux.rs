@@ -14,7 +14,7 @@ const ROOT_DIR: &str = "/";
 const PCI_ID_MAIN_PATH: &str = "/usr/share/hwdata/pci.ids";
 const PCI_ID_FALLBACK_PATH: &str = "/usr/share/misc/pci.ids";
 
-pub fn get_distro_id() -> String {
+pub fn get_distro_id() -> Option<String> {
     fs::read_to_string(Path::new("/etc/os-release"))
         .ok()
         .and_then(|content| {
@@ -24,38 +24,47 @@ pub fn get_distro_id() -> String {
                 .and_then(|line| line.split('=').nth(1))
                 .map(|id| id.trim_matches('"').to_string())
         })
-        .unwrap_or_else(|| {
+        .or_else(|| {
             tracing::warn!("Failed to get distro_id");
-            "unknown".to_string()
+            None
         })
 }
 
 /// Gets battery status as a tuple (Capacity, Status) if available
-pub fn get_battery() -> (String, String) {
-    let capacity = get_trimmed(Path::new(BATTERY_CAPACITY_DIR)).unwrap_or_else(|_| {
-        tracing::debug!("Failed to get battery capacity, possibly not a laptop");
-        "Unavailable".to_string()
-    });
-    let status = get_trimmed(Path::new(BATTERY_STATUS_DIR)).unwrap_or_else(|_| {
-        tracing::debug!("Failed to get battery status, possibly not a laptop");
-        "Unavailable".to_string()
-    });
-    (capacity, status)
+pub fn get_battery() -> Option<(String, String)> {
+    let capacity = get_trimmed(Path::new(BATTERY_CAPACITY_DIR))
+        .inspect_err(|e| {
+            tracing::debug!("Failed to get battery capacity, possibly not a laptop: {:?}", e);
+        })
+        .ok()?;
+    let status = get_trimmed(Path::new(BATTERY_STATUS_DIR))
+        .inspect_err(|e| {
+            tracing::debug!("Failed to get battery status, possibly not a laptop: {:?}", e)
+        })
+        .ok()?;
+
+    Some((capacity, status))
 }
 
 /// Gets current power draw and returns it as Watts - Only available on battery-powered devices
-pub fn get_power_draw() -> u32 {
+pub fn get_power_draw() -> Option<u32> {
     match get_trimmed(Path::new(BATTERY_POWER_DRAW_DIR)) {
         // power_now contains the value in microwatts, we transform it in watts
-        Ok(content) => {
-            content.parse::<u32>().unwrap_or({
-                tracing::error!("Error parsing u32 from battery draw value, defaulting to 0");
-                0
-            }) / 1_000_000
-        },
-        Err(_) => {
-            tracing::debug!("No power draw detected, possibly not a laptop");
-            0
+        Ok(content) => Some(
+            content
+                .parse::<u32>()
+                .inspect_err(|e| {
+                    tracing::warn!(
+                        "Error parsing unsigned integer from battery draw as string: {:?}",
+                        e
+                    )
+                })
+                .ok()?
+                / 1_000_000,
+        ),
+        Err(e) => {
+            tracing::debug!("No power draw detected, possibly not a laptop: {:?}", e);
+            None
         },
     }
 }

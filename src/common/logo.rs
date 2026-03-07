@@ -30,7 +30,7 @@ pub fn get_logo_style(logo: Vec<String>) -> Vec<ParsedLine> {
         tracing::warn!("Logo is empty, skipping printing...");
         // this could return none, but in this case an empty
         // vector is easier to handle
-        return Vec::new()
+        return Vec::new();
     }
 
     let mut lines: Vec<ParsedLine> = Vec::new();
