@@ -136,6 +136,7 @@ pub fn strip_cpu_name(full_name: &str) -> String {
 }
 
 pub fn init_logging() -> Result<(), Box<dyn std::error::Error>> {
+    // FIXME: Replace unwrap before v1.0
     let proj_dirs =
         ProjectDirs::from("com", "lemuray", "rustfetch").expect("Could not determine project dirs");
 

@@ -15,6 +15,7 @@ This project has gone through countless iterations and it is always changing, fa
 - Enable modifying the TOML config file by using CLI flags: ( <code style="color : green">Minor</code> )
     - --toggle = os
     - ~~--reset-config~~
+- Music detection ( <code style="color : green">Minor</code> )
 
 ## Version 0.4.0
 - Add fallback logo in case the logo is not available. Such as linux.txt or check secondary ID for derivate distros (Artix, Kubuntu exc) ( <code style="color : orange">Important</code> )
